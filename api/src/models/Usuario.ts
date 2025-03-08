@@ -35,12 +35,12 @@ export class Usuario {
   disponibilidade!: number;
 
   /** 
-   * Nível de acesso: 0 - Administrador, 1 - Atendente, 2 - Editor, 3 - Supervisor, 4 - Gestor 
+   * Nível de acesso: 0 - Cidadão, 1 - Administrador, 2 - Atendente, 3 - Supervisor, 4 - Editor, 5 - Gestor 
    */
   @Column({ 
     type: "int", 
     nullable: false, 
-    comment: "Nível de acesso: 0 - Administrador, 1 - Atendente, 2 - Editor, 3 - Supervisor, 4 - Gestor" 
+    comment: "Nível de acesso: 0 - Cidadão, 1 - Administrador, 2 - Atendente, 3 - Supervisor, 4 - Editor, 5 - Gestor" 
   })
   nivel!: number;
 

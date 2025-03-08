@@ -39,7 +39,16 @@ export class Dispositivo {
   })
   identificacao!: string;
 
-  // --- RELACIONAMENTOS ---
+/** Rótulo que identifica o dispositivo */
+@Column({ 
+  type: "varchar", 
+  length: 45, 
+  nullable: false, 
+  comment: "Rótulo que identifica o dispositivo" 
+})
+rotulo!: string;
+
+// --- RELACIONAMENTOS ---
 
   /** Usuário que cadastrou o dispositivo (opcional) */
   @ManyToOne(() => Usuario, (usuario) => usuario.dispositivos, { 

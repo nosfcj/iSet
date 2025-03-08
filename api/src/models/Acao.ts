@@ -90,8 +90,8 @@ export class Acao {
   @JoinColumn({ name: "Servico_ID" })
   servicoRef!: Servico;
 
-  /** Usuário que executou esta ação (opcional enquanto não atendida) */
-  @ManyToOne(() => Usuario, (usuario) => usuario.acoes, { nullable: true })
+  /** Usuário que executou esta ação (⚠️ Agora é obrigatório) */
+  @ManyToOne(() => Usuario, (usuario) => usuario.acoes, { nullable: false })
   @JoinColumn({ name: "Usuario_ID" })
-  usuarioRef?: Usuario;
+  usuarioRef!: Usuario;
 }
