@@ -1,65 +1,48 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToOne, JoinColumn } from "typeorm";
-import { Dispositivo } from "./Dispositivo";
-import { Usuario } from "./Usuario";
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Dispositivo } from './Dispositivo';
+import { Usuario } from './Usuario';
 
-/**
- * Entidade que representa um monitor de senhas no sistema.
- * Cada monitor está vinculado a um dispositivo e a um usuário que o cadastrou.
- */
-@Entity("Monitor")
+@Entity({ name: 'Monitor', comment: 'Monitores de chamada de senha' })
 export class Monitor {
-  /** Dispositivo associado (Chave Primária e Estrangeira) */
-  @PrimaryColumn({ 
-    name: "Dispositivo_ID", 
-    comment: "ID do dispositivo que atua como monitor de senhas" 
-  })
-  dispositivoId!: number;
+  @PrimaryColumn({ name: 'Dispositivo_ID' })
+  dispositivoId!: number; // PK compartilhada com Dispositivo
 
-  /** Status: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status do monitor: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - Inativo, 1 - Ativo',
   })
   status!: number;
 
-  /** Rótulo para identificação personalizada */
-  @Column({ 
-    type: "varchar", 
-    length: 255, 
-    nullable: true, 
-    comment: "Rótulo para identificação do monitor" 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Rótulo para identificação do monitor',
   })
-  rotulo?: string;
+  rotulo!: string | null;
 
-  /** Data de cadastro do monitor */
-  @Column({ 
-    type: "timestamp", 
-    nullable: true, 
-    default: () => "CURRENT_TIMESTAMP", 
-    comment: "Data de cadastro do monitor" 
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    comment: 'Data de cadastro do monitor',
   })
-  dataCadastro?: Date;
+  dataCadastro!: Date;
 
-  /** Guichês vinculados (formato JSON) */
-  @Column({ 
-    type: "json", 
-    nullable: true, 
-    comment: "Lista de guichês associados ao monitor (formato JSON)" 
+  @Column({
+    type: 'json',
+    nullable: true,
+    comment: 'Guichês vinculados (IDs em formato JSON)',
   })
-  guiches?: object;
+  guiches!: number[] | null;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Usuario (obrigatória)
+  @ManyToOne(() => Usuario, (usuario) => usuario.monitores, { nullable: false })
+  @JoinColumn({ name: 'Usuario_ID' })
+  usuario!: Usuario;
 
-  /** Dispositivo vinculado (1:1) */
-  @OneToOne(() => Dispositivo, (dispositivo) => dispositivo.monitor)
-  @JoinColumn({ name: "Dispositivo_ID" })
-  dispositivoRef!: Dispositivo;
-
-  /** Usuário que cadastrou o monitor */
-  @ManyToOne(() => Usuario, (usuario) => usuario.monitores, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Usuario_ID" })
-  usuarioRef!: Usuario;
+  // Relação OneToOne com Dispositivo (PK compartilhada)
+  @OneToOne(() => Dispositivo)
+  @JoinColumn({ name: 'Dispositivo_ID' })
+  dispositivo!: Dispositivo;
 }

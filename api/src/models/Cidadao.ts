@@ -1,110 +1,98 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from "typeorm";
-import { Atendimento } from "./Atendimento";
-import { Dispositivo } from "./Dispositivo";
-import { LoginCidadao } from "./LoginCidadao";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
+import { Atendimento } from './Atendimento';
+import { LoginCidadao } from './LoginCidadao';
+import { Dispositivo } from './Dispositivo';
 
-/**
- * Entidade que representa um cidadão cadastrado no sistema.
- * Um cidadão pode solicitar atendimentos, possuir dispositivos registrados e ter um login associado.
- */
-@Entity("Cidadao")
+@Entity({ name: 'Cidadao' })
 export class Cidadao {
-  /** Identificador único do cidadão (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do cidadão" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Nome completo do cidadão */
-  @Column({ 
-    type: "text", 
-    nullable: false, 
-    comment: "Nome completo do cidadão" 
+  @Column({
+    type: 'text',
+    nullable: false,
+    comment: 'Nome do cidadão',
   })
   nome!: string;
 
-  /** Status: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Cidade de residência (opcional) */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Cidade de residência do cidadão" 
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Cidade de residência',
   })
-  cidade?: string;
+  cidade!: string | null;
 
-  /** Telefones de contato (separados por ';') */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Telefones do cidadão, separados por ponto e vírgula" 
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Telefones (separados por ";")',
   })
-  telefone?: string;
+  telefone!: string | null;
 
-  /** Email do cidadão (opcional) */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Endereço de email do cidadão" 
+  @Column({
+    type: 'text',
+    nullable: true,
   })
-  email?: string;
+  email!: string | null;
 
-  /** Dados de autenticação via redes sociais (JSON) */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Dados de autenticação via Google ou Facebook (formato JSON)" 
+  @Column({
+    type: 'text',
+    name: 'Auth0',
+    nullable: true,
+    comment: 'Dados de autenticação externa (JSON)',
   })
-  auth0?: string;
+  auth0!: string | null;
 
-  /** Data/hora do cadastro */
-  @Column({ 
-    type: "timestamp", 
-    default: () => "CURRENT_TIMESTAMP", 
-    comment: "Data e hora do cadastro do cidadão" 
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    comment: 'Data/hora do cadastro',
   })
   dataHoraCadastro!: Date;
 
-  /** Prioridade: NULL - Sem prioridade, 1 - Idoso, 2 - Patologia */
-  @Column({ 
-    type: "int", 
-    nullable: true, 
-    comment: "Prioridade no atendimento: 1 - Idoso, 2 - Patologia" 
+  @Column({
+    type: 'int',
+    width: 1,
+    nullable: true,
+    comment: 'Prioridade: NULL - sem, 1 - idoso, 2 - patologia',
   })
-  prioridade?: number;
+  prioridade!: number | null;
 
-  /** Data de nascimento (opcional) */
-  @Column({ 
-    type: "date", 
-    nullable: true, 
-    comment: "Data de nascimento do cidadão" 
+  @Column({
+    type: 'date',
+    nullable: true,
+    comment: 'Data de nascimento (opcional)',
   })
-  dataNascimento?: Date;
+  dataNascimento!: Date | null;
 
-  /** Último acesso ao sistema */
-  @Column({ 
-    type: "timestamp", 
-    nullable: true, 
-    default: () => "CURRENT_TIMESTAMP", 
-    comment: "Último acesso do cidadão ao sistema" 
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+    comment: 'Último acesso ao sistema',
   })
-  ultimoAcesso?: Date;
+  ultimoAcesso!: Date;
 
-  // --- RELACIONAMENTOS ---
-
-  /** Atendimentos solicitados pelo cidadão */
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.cidadaoRef)
+  // Relação com Atendimento
+  @OneToMany(() => Atendimento, (atendimento) => atendimento.cidadao)
   atendimentos!: Atendimento[];
 
-  /** Dispositivos cadastrados pelo cidadão */
-  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.cidadaoRef)
+  // Relação com LoginCidadao
+  @OneToMany(() => LoginCidadao, (login) => login.cidadao)
+  logins!: LoginCidadao[];
+
+  // Relação com Dispositivo
+  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.cidadao)
   dispositivos!: Dispositivo[];
 
-  /** Credencial de login do cidadão (1:1) */
-  @OneToOne(() => LoginCidadao, (login) => login.cidadaoRef)
+  @OneToOne(() => LoginCidadao, (login) => login.cidadao)
   login!: LoginCidadao;
+
 }

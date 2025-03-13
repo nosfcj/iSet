@@ -1,93 +1,77 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from "typeorm";
-import { Orgao } from "./Orgao";
-import { Atendimento } from "./Atendimento";
-import { Guiche } from "./Guiche";
-import { Acao } from "./Acao";
-import { Auditoria } from "./Auditoria";
-import { Dispositivo } from "./Dispositivo";
-import { Monitor } from "./Monitor";
-import { LoginUsuario } from "./LoginUsuario";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Orgao } from './Orgao';
+import { Atendimento } from './Atendimento';
+import { Guiche } from './Guiche';
+import { LoginUsuario } from './LoginUsuario';
+import { Auditoria } from './Auditoria';
+import { Dispositivo } from './Dispositivo';
+import { Monitor } from './Monitor';
+import { Acao } from './Acao'; // Adicione esta linha
 
-/**
- * Entidade que representa os usuários do sistema.
- * Cada usuário pertence a um órgão e pode atuar em atendimentos, guichês e auditorias.
- */
-@Entity("Usuario")
+@Entity({ name: 'Usuario' })
 export class Usuario {
-  /** Identificador único do usuário (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do usuário" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status do usuário: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status do usuário: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Disponibilidade para atendimento: 0 - Indisponível, 1 - Disponível */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Disponibilidade para atendimento: 0 - Indisponível, 1 - Disponível" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Disponibilidade: 0 - indisponível, 1 - disponível',
   })
   disponibilidade!: number;
 
-  /** 
-   * Nível de acesso: 0 - Cidadão, 1 - Administrador, 2 - Atendente, 3 - Supervisor, 4 - Editor, 5 - Gestor 
-   */
-  @Column({ 
-    type: "int", 
-    nullable: false, 
-    comment: "Nível de acesso: 0 - Cidadão, 1 - Administrador, 2 - Atendente, 3 - Supervisor, 4 - Editor, 5 - Gestor" 
+  @Column({
+    type: 'int',
+    nullable: false,
+    comment: 'Nível de acesso (0-4). 0 = Administrador',
   })
   nivel!: number;
 
-  /** Nome completo do usuário */
-  @Column({ 
-    type: "varchar", 
-    length: 45, 
-    nullable: false, 
-    comment: "Nome completo do usuário" 
+  @Column({
+    length: 45,
+    nullable: false,
+    comment: 'Nome real do usuário',
   })
   nome!: string;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Orgao
+  @ManyToOne(() => Orgao, (orgao) => orgao.usuarios)
+  @JoinColumn({ name: 'Orgao_ID' })
+  orgao!: Orgao;
 
-  /** Órgão ao qual o usuário pertence */
-  @ManyToOne(() => Orgao, (orgao) => orgao.usuarios, { 
-    nullable: false, 
-    onDelete: "NO ACTION" 
-  })
-  @JoinColumn({ name: "Orgao_ID" }) // ✅ FK explícita
-  orgaoRef!: Orgao;
-
-  /** Atendimentos registrados por este usuário */
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.usuarioRef)
+  // Relação com Atendimento
+  @OneToMany(() => Atendimento, (atendimento) => atendimento.usuario)
   atendimentos!: Atendimento[];
 
-  /** Guichês operados por este usuário */
-  @OneToMany(() => Guiche, (guiche) => guiche.usuarioRef)
+  // Relação com Guiche
+  @OneToMany(() => Guiche, (guiche) => guiche.usuario)
   guiches!: Guiche[];
 
-  /** Ações de atendimento executadas por este usuário */
-  @OneToMany(() => Acao, (acao) => acao.usuarioRef)
-  acoes!: Acao[];
-
-  /** Auditorias geradas por este usuário */
-  @OneToMany(() => Auditoria, (auditoria) => auditoria.usuarioRef)
+  // Relação com Auditoria
+  @OneToMany(() => Auditoria, (auditoria) => auditoria.usuario)
   auditorias!: Auditoria[];
 
-  /** Dispositivos cadastrados por este usuário */
-  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.usuarioRef)
+  // Relação com Dispositivo
+  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.usuario)
   dispositivos!: Dispositivo[];
 
-  /** Monitores de senha cadastrados por este usuário */
-  @OneToMany(() => Monitor, (monitor) => monitor.usuarioRef)
+  // Relação com Monitor
+  @OneToMany(() => Monitor, (monitor) => monitor.usuario)
   monitores!: Monitor[];
 
-  /** Credencial de login associada a este usuário (1:1) */
-  @OneToOne(() => LoginUsuario, (login) => login.usuarioRef)
-  login!: LoginUsuario; // ✅ Relação 1:1
+  // Relação com LoginUsuario
+  @OneToOne(() => LoginUsuario, (login) => login.usuario)
+  login!: LoginUsuario;
+
+  // Relação com Acao (OneToMany)
+  @OneToMany(() => Acao, (acao) => acao.usuario)
+  acoes!: Acao[]; // Propriedade faltante
+
 }

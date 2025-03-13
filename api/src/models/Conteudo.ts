@@ -1,51 +1,38 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
-import { Servico } from "./Servico";
-import { Local } from "./Local";
-import { Requisito } from "./Requisito";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Servico } from './Servico';
+import { Local } from './Local';
+import { Requisito } from './Requisito';
 
-/**
- * Entidade que representa o conteúdo de um serviço disponível em um local específico.
- * Cada conteúdo está vinculado a um serviço e a um local de atendimento.
- */
-@Entity("Conteudo")
+@Entity({ name: 'Conteudo', comment: 'Serviços disponibilizados para atendimento' })
 export class Conteudo {
-  /** Identificador único do conteúdo (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do conteúdo" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Indisponível, 1 - Disponível */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Indisponível, 1 - Disponível" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - indisponível, 1 - disponível',
   })
   status!: number;
 
-  /** Descrição do conteúdo (formato HTML) */
-  @Column({ 
-    type: "text", 
-    nullable: false, 
-    comment: "Descrição detalhada do serviço em HTML" 
+  @Column({
+    type: 'text',
+    nullable: false,
+    comment: 'Descrição detalhada do serviço',
   })
   descricao!: string;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Servico (ManyToOne)
+  @ManyToOne(() => Servico, (servico) => servico.conteudos)
+  @JoinColumn({ name: 'Servico_ID' })
+  servico!: Servico;
 
-  /** Serviço ao qual este conteúdo pertence */
-  @ManyToOne(() => Servico, (servico) => servico.conteudos, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Servico_ID" }) // ✅ FK explícita
-  servicoRef!: Servico;
+  // Relação com Local (ManyToOne)
+  @ManyToOne(() => Local, (local) => local.conteudos)
+  @JoinColumn({ name: 'Local_ID' })
+  local!: Local;
 
-  /** Local onde este conteúdo é oferecido */
-  @ManyToOne(() => Local, (local) => local.conteudos, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Local_ID" }) // ✅ FK explícita
-  localRef!: Local;
-
-  /** Requisitos associados a este conteúdo */
-  @OneToMany(() => Requisito, (requisito) => requisito.conteudoRef)
+  // Relação com Requisito (OneToMany)
+  @OneToMany(() => Requisito, (requisito) => requisito.conteudo)
   requisitos!: Requisito[];
 }

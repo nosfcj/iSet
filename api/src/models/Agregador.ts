@@ -1,42 +1,31 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm";
-import { SubAgregado } from "./SubAgregado";
-import { Local } from "./Local";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { SubAgregado } from './SubAgregado';
+import { Local } from './Local';
 
-/**
- * Entidade que representa um agregador de serviços (ex: central de atendimento).
- * Um agregador pode conter sub-agregadores e estar vinculado a vários locais.
- */
-@Entity("Agregador")
+@Entity({ name: 'Agregador', comment: 'Agregadores de locais de atendimento' })
 export class Agregador {
-  /** Identificador único do agregador (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do agregador" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Desativado, 1 - Ativado */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Desativado, 1 - Ativado" 
+  @Column({
+    type: 'tinyint',
+    nullable: false,
+    comment: 'Status: 0 - desativado, 1 - ativado',
   })
   status!: number;
 
-  /** Nome do agregador (ex: 'Central Norte') */
-  @Column({ 
-    type: "varchar", 
-    length: 45, 
-    nullable: false, 
-    comment: "Nome do agregador de serviços" 
+  @Column({
+    length: 45,
+    nullable: false,
+    comment: 'Nome do agregador',
   })
   nome!: string;
 
-  // --- RELACIONAMENTOS ---
-
-  /** Sub-agregadores vinculados (ex: setores da central) */
-  @OneToMany(() => SubAgregado, (subAgregado) => subAgregado.agregadorRef)
-  @JoinColumn({ name: "Agregador_ID" }) // ✅ FK explícita
+  // Relação com SubAgregado (OneToMany)
+  @OneToMany(() => SubAgregado, (subAgregado) => subAgregado.agregador)
   subAgregados!: SubAgregado[];
 
-  /** Locais associados a este agregador */
-  @OneToMany(() => Local, (local) => local.agregadorRef)
+  // Relação com Local (OneToMany)
+  @OneToMany(() => Local, (local) => local.agregador)
   locais!: Local[];
 }

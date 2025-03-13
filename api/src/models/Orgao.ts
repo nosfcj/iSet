@@ -1,46 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Servico } from "./Servico";
-import { Local } from "./Local";
-import { Usuario } from "./Usuario";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Servico } from './Servico';
+import { Local } from './Local';
+import { Usuario } from './Usuario'; // Importação adicionada
 
-/**
- * Entidade que representa um órgão cadastrado no sistema.
- * Um órgão pode oferecer serviços, ter locais de atendimento e usuários associados.
- */
-@Entity("Orgao")
+@Entity({ name: 'Orgao' })
 export class Orgao {
-  /** Identificador único do órgão (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do órgão" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status atual do órgão: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Nome do órgão (ex: 'Secretaria da Saúde') */
-  @Column({ 
-    type: "varchar", 
-    length: 45, 
-    nullable: false, 
-    comment: "Nome do órgão no sistema" 
+  @Column({
+    length: 45,
+    nullable: false,
+    comment: 'Nome do órgão',
   })
   nome!: string;
 
-  // --- RELACIONAMENTOS ---
-
-  /** Serviços oferecidos por este órgão */
-  @OneToMany(() => Servico, (servico) => servico.orgaoRef)
+  // Relação com Servico
+  @OneToMany(() => Servico, (servico) => servico.orgao)
   servicos!: Servico[];
 
-  /** Locais de atendimento vinculados a este órgão */
-  @OneToMany(() => Local, (local) => local.orgaoRef)
+  // Relação com Local
+  @OneToMany(() => Local, (local) => local.orgao)
   locais!: Local[];
 
-  /** Usuários associados a este órgão */
-  @OneToMany(() => Usuario, (usuario) => usuario.orgaoRef)
+  // Relação com Usuario (adicionada)
+  @OneToMany(() => Usuario, (usuario) => usuario.orgao)
   usuarios!: Usuario[];
 }

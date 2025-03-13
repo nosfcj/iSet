@@ -1,16 +1,14 @@
-import { Entity, PrimaryColumn, Column } from "typeorm";
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
-/**
- * Entidade que armazena configurações globais do sistema.
- * Como é uma tabela de configuração única, não possui chave primária auto incrementável.
- */
-@Entity("Configuracoes")
+@Entity({ 
+  name: 'Configuracoes',
+  comment: 'Configurações globais do sistema' 
+})
 export class Configuracoes {
-  /** Identificador único da configuração (sempre terá um único registro) */
-  @PrimaryColumn()
-  ID!: number;
-
-  /** Quantidade de senhas exibidas no monitor de chamadas */
-  @Column({ type: "int", width: 2, nullable: false, comment: "Quantidade de senhas exibidas no monitor de chamadas" })
-  qtdSenhasExibidasNoMonitor!: number;
+  @PrimaryColumn({
+    type: 'int',
+    width: 2,
+    comment: 'Quantidade de senhas exibidas nos monitores',
+  })
+  qtdSenhasExibidasNoMonitor!: number; // Forçando PK mesmo sem AUTO_INCREMENT
 }

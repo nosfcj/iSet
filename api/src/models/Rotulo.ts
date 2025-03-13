@@ -1,36 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Requisito } from "./Requisito";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Requisito } from './Requisito';
 
-/**
- * Entidade que representa um rótulo para categorizar pré-requisitos de serviços.
- * Cada rótulo pode estar associado a múltiplos requisitos.
- */
-@Entity("Rotulo")
+@Entity({ name: 'Rotulo', comment: 'Rótulos para padronização de pré-requisitos' })
 export class Rotulo {
-  /** Identificador único do rótulo (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do rótulo" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Nome do rótulo (ex: 'Documentos Obrigatórios') */
-  @Column({ 
-    type: "varchar", 
-    length: 255, 
-    nullable: false, 
-    comment: "Rótulo com o título do pré-requisito para padronização de conteúdos" 
+  @Column({
+    length: 255,
+    nullable: false,
+    comment: 'Título do rótulo',
   })
   rotulo!: string;
 
-  // --- RELACIONAMENTOS ---
-
-  /** Requisitos categorizados por este rótulo */
-  @OneToMany(() => Requisito, (requisito) => requisito.rotuloRef)
+  // Relação com Requisito (OneToMany)
+  @OneToMany(() => Requisito, (requisito) => requisito.rotulo)
   requisitos!: Requisito[];
 }

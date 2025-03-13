@@ -1,102 +1,86 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
-import { Orgao } from "./Orgao";
-import { Cidade } from "./Cidade";
-import { Agregador } from "./Agregador";
-import { SubAgregado } from "./SubAgregado";
-import { Conteudo } from "./Conteudo";
-import { Atendimento } from "./Atendimento";
-import { Guiche } from "./Guiche";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Orgao } from './Orgao';
+import { Agregador } from './Agregador';
+import { SubAgregado } from './SubAgregado';
+import { Cidade } from './Cidade';
+import { Conteudo } from './Conteudo'; // Importe a entidade Conteudo
+import { Guiche } from './Guiche';
+import { Atendimento } from './Atendimento';
 
-/**
- * Entidade que representa um local de atendimento de um serviço.
- * Cada local pertence a um órgão e pode estar associado a um agregador e sub-agregador.
- */
-@Entity("Local")
+@Entity({ name: 'Local', comment: 'Locais de atendimento de serviços' })
 export class Local {
-  /** Identificador único do local (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do local" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Desativado, 1 - Ativado */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Desativado, 1 - Ativado" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - desativado, 1 - ativo',
   })
   status!: number;
 
-  /** Endereço físico do local */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Endereço completo do local de atendimento" 
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Endereço físico do local',
   })
-  endereco?: string;
+  endereco!: string | null;
 
-  /** Link do Google Maps para a localização */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Link do Google Maps com a localização exata" 
+  @Column({
+    type: 'text',
+    name: 'linkMaps',
+    nullable: true,
+    comment: 'Link do Google Maps',
   })
-  linkMaps?: string;
+  linkMaps!: string | null;
 
-  /** Telefones de contato (separados por ';') */
-  @Column({ 
-    type: "text", 
-    nullable: true, 
-    comment: "Telefones do local, separados por ponto e vírgula" 
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Telefones (separados por ";")',
   })
-  telefone?: string;
+  telefone!: string | null;
 
-  /** CEP do local */
-  @Column({ 
-    type: "varchar", 
-    length: 15, 
-    nullable: true, 
-    comment: "CEP do local de atendimento" 
+  @Column({
+    type: 'varchar',
+    length: 15,
+    name: 'CEP',
+    nullable: true,
+    comment: 'CEP do local',
   })
-  CEP?: string;
+  cep!: string | null;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Orgao (ManyToOne)
+  @ManyToOne(() => Orgao, (orgao) => orgao.locais)
+  @JoinColumn({ name: 'Orgao_ID' })
+  orgao!: Orgao;
 
-  /** Órgão responsável pelo local */
-  @ManyToOne(() => Orgao, (orgao) => orgao.locais, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Orgao_ID" }) // ✅ FK explícita
-  orgaoRef!: Orgao;
+  // Relação com Agregador (ManyToOne)
+  @ManyToOne(() => Agregador, (agregador) => agregador.locais)
+  @JoinColumn({ name: 'Agregador_ID' })
+  agregador!: Agregador;
 
-  /** Cidade onde o local está situado */
-  @ManyToOne(() => Cidade, (cidade) => cidade.locais, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Cidade_ID" }) // ✅ FK explícita
-  cidadeRef!: Cidade;
+  // Relação com SubAgregado (ManyToOne - opcional)
+  @ManyToOne(() => SubAgregado, (subAgregado) => subAgregado.locais, { nullable: true })
+  @JoinColumn({ name: 'SubAgregado_ID' })
+  subAgregado!: SubAgregado | null;
 
-  /** Agregador associado (opcional) */
-  @ManyToOne(() => Agregador, (agregador) => agregador.locais, { 
-    nullable: true 
-  })
-  @JoinColumn({ name: "Agregador_ID" }) // ✅ FK explícita
-  agregadorRef?: Agregador;
+  // Relação com Cidade (ManyToOne)
+  @ManyToOne(() => Cidade, (cidade) => cidade.locais)
+  @JoinColumn({ name: 'Cidade_ID' })
+  cidade!: Cidade;
 
-  /** Sub-agregador associado (opcional) */
-  @ManyToOne(() => SubAgregado, (subAgregado) => subAgregado.locais, { 
-    nullable: true 
-  })
-  @JoinColumn({ name: "SubAgregado_ID" }) // ✅ FK explícita
-  subAgregadoRef?: SubAgregado;
+  // Adicione esta relação com Conteudo (OneToMany)
+  @OneToMany(() => Conteudo, (conteudo) => conteudo.local)
+  conteudos!: Conteudo[]; // Propriedade faltante
 
-  /** Conteúdos disponíveis neste local */
-  @OneToMany(() => Conteudo, (conteudo) => conteudo.localRef)
-  conteudos!: Conteudo[];
+  // Relação com Guiche (OneToMany)
+  @OneToMany(() => Guiche, (guiche) => guiche.local)
+  guiches!: Guiche[]; // Propriedade faltante
 
-  /** Atendimentos realizados neste local */
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.localRef)
-  atendimentos!: Atendimento[];
+  // Adicione esta relação com Conteudo (OneToMany)
+  @OneToMany(() => Atendimento, (atendendo) => atendendo.local)
+  atendimentos!: Conteudo[]; // Propriedade faltante
 
-  /** Guichês disponíveis neste local */
-  @OneToMany(() => Guiche, (guiche) => guiche.localRef)
-  guiches!: Guiche[];
+
 }

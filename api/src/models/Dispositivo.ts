@@ -1,70 +1,53 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from "typeorm";
-import { Usuario } from "./Usuario";
-import { Cidadao } from "./Cidadao";
-import { Monitor } from "./Monitor";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Usuario } from './Usuario';
+import { Cidadao } from './Cidadao';
+import { Monitor } from './Monitor';
 
-/**
- * Entidade que representa dispositivos cadastrados no sistema.
- * Dispositivos podem pertencer a usuários (web/desktop) ou cidadãos (portáteis).
- */
-@Entity("Dispositivo")
+@Entity({ name: 'Dispositivo', comment: 'Dispositivos autorizados a acessar o sistema' })
 export class Dispositivo {
-  /** Identificador único do dispositivo (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do dispositivo" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Inativo, 1 - Ativo */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Inativo, 1 - Ativo" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Tipo: 1 - Web, 2 - Desktop, 3 - Portátil */
-  @Column({ 
-    type: "int", 
-    width: 1, 
-    nullable: false, 
-    comment: "Tipo: 1 - Web, 2 - Desktop, 3 - Portátil" 
+  @Column({
+    type: 'int',
+    width: 1,
+    nullable: false,
+    comment: 'Tipo: 1 - Web, 2 - Desktop, 3 - Portátil',
   })
   tipo!: number;
 
-  /** Chave hash de identificação do dispositivo */
-  @Column({ 
-    type: "varchar", 
-    length: 45, 
-    nullable: false, 
-    comment: "Chave hash que identifica o dispositivo" 
+  @Column({
+    length: 45,
+    nullable: false,
+    comment: 'Hash de identificação do dispositivo',
   })
   identificacao!: string;
 
-/** Rótulo que identifica o dispositivo */
-@Column({ 
-  type: "varchar", 
-  length: 45, 
-  nullable: false, 
-  comment: "Rótulo que identifica o dispositivo" 
-})
-rotulo!: string;
-
-// --- RELACIONAMENTOS ---
-
-  /** Usuário que cadastrou o dispositivo (opcional) */
-  @ManyToOne(() => Usuario, (usuario) => usuario.dispositivos, { 
-    nullable: true 
+  @Column({
+    length: 45,
+    default: 'Rótulo que identifica o dispositivo',
+    comment: 'Nome amigável do dispositivo',
   })
-  @JoinColumn({ name: "Usuario_ID" })
-  usuarioRef?: Usuario;
+  rotulo!: string;
 
-  /** Cidadão que cadastrou o dispositivo (opcional) */
-  @ManyToOne(() => Cidadao, (cidadao) => cidadao.dispositivos, { 
-    nullable: true 
-  })
-  @JoinColumn({ name: "Cidadao_ID" })
-  cidadaoRef?: Cidadao;
+  // Relação com Usuario (opcional)
+  @ManyToOne(() => Usuario, (usuario) => usuario.dispositivos, { nullable: true })
+  @JoinColumn({ name: 'Usuario_ID' })
+  usuario!: Usuario | null;
 
-  /** Monitor de senha vinculado a este dispositivo (1:1) */
-  @OneToOne(() => Monitor, (monitor) => monitor.dispositivoRef)
-  monitor!: Monitor; // ✅ Obrigatório se o dispositivo for um monitor
+  // Relação com Cidadao (opcional)
+  @ManyToOne(() => Cidadao, (cidadao) => cidadao.dispositivos, { nullable: true })
+  @JoinColumn({ name: 'Cidadao_ID' })
+  cidadao!: Cidadao | null;
+
+  // Relação com Monitor (OneToOne - adicionada)
+  @OneToOne(() => Monitor, (monitor) => monitor.dispositivo)
+  monitor!: Monitor;
 }

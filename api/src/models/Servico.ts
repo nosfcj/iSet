@@ -1,58 +1,42 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
-import { Orgao } from "./Orgao";
-import { Acao } from "./Acao";
-import { Conteudo } from "./Conteudo";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Orgao } from './Orgao';
+import { Conteudo } from './Conteudo';
+import { Direcionamento } from './Direcionamento';
+import { Acao } from './Acao';
 
-/**
- * Entidade que representa um serviço oferecido por um órgão.
- * Cada serviço pertence a um órgão e pode estar relacionado a várias ações e conteúdos.
- */
-@Entity("Servico")
+@Entity({ name: 'Servico' })
 export class Servico {
-  /** Identificador único do serviço */
-  @PrimaryGeneratedColumn({ comment: "Identificador único do serviço" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Desativado, 1 - Disponível */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Desativado, 1 - Disponível" 
+  @Column({
+    type: 'tinyint',
+    nullable: false,
+    comment: 'Status: 0 - desativado, 1 - disponível',
   })
   status!: number;
 
-  /** Prefixo da senha (3 letras) */
-  @Column({ 
-    type: "varchar", 
-    length: 5, 
-    nullable: false, 
-    comment: "Identificação do serviço para composição de senhas" 
-  })
-  identificacao!: string;
-
-  /** Nome completo do serviço */
-  @Column({ 
-    type: "varchar", 
-    length: 255, 
-    nullable: false, 
-    comment: "Título descritivo do serviço" 
+  @Column({
+    length: 255,
+    nullable: false,
+    comment: 'Título do serviço',
   })
   titulo!: string;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Orgao
+  @ManyToOne(() => Orgao, (orgao) => orgao.servicos)
+  @JoinColumn({ name: 'Orgao_ID' })
+  orgao!: Orgao;
 
-  /** Órgão responsável pelo serviço */
-  @ManyToOne(() => Orgao, (orgao) => orgao.servicos, { 
-    nullable: false 
-  })
-  @JoinColumn({ name: "Orgao_ID" }) // ✅ FK explícita
-  orgaoRef!: Orgao;
+  // Relação com Conteudo
+  @OneToMany(() => Conteudo, (conteudo) => conteudo.servico)
+  conteudos!: Conteudo[];
 
-  /** Ações vinculadas a este serviço */
-  @OneToMany(() => Acao, (acao) => acao.servicoRef)
+  // Relação com Direcionamento (adicionada)
+  @OneToMany(() => Direcionamento, (direcionamento) => direcionamento.servico)
+  direcionamentos!: Direcionamento[];
+
+  @OneToMany(() => Acao, (acao) => acao.servico)
   acoes!: Acao[];
 
-  /** Conteúdos relacionados a este serviço */
-  @OneToMany(() => Conteudo, (conteudo) => conteudo.servicoRef)
-  conteudos!: Conteudo[];
 }

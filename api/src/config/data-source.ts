@@ -21,11 +21,12 @@ import { Monitor } from "../models/Monitor";
 import { LoginUsuario } from "../models/LoginUsuario";
 import { LoginCidadao } from "../models/LoginCidadao";
 import { Configuracoes } from "../models/Configuracoes";
+import { Direcionamento } from "../models/Direcionamento";
 
 export const AppDataSource = new DataSource({
-  type: "mysql", // Alterar para "postgres" se estiver usando PostgreSQL
+  type: "mysql",
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 3306, // Use 5432 para PostgreSQL
+  port: Number(process.env.DB_PORT) || 3306,
   username: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "UltraDMA",
   database: process.env.DB_NAME || "iSet",
@@ -52,6 +53,7 @@ export const AppDataSource = new DataSource({
     Monitor,
     LoginUsuario,
     LoginCidadao,
+    Direcionamento,
     Configuracoes,
   ],
   migrations: ["src/migrations/*.ts"],

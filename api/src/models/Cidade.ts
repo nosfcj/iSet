@@ -1,43 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Local } from "./Local";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Local } from './Local';
 
-/**
- * Entidade que representa uma cidade cadastrada no sistema.
- * Cada cidade pode ter vários locais de atendimento associados.
- */
-@Entity("Cidade")
+@Entity({ name: 'Cidade', comment: 'Cidades e estados cadastrados' })
 export class Cidade {
-  /** Identificador único da cidade (Chave Primária) */
-  @PrimaryGeneratedColumn({ comment: "Identificador único da cidade" })
-  ID!: number;
+  @PrimaryGeneratedColumn({ name: 'ID' })
+  id!: number;
 
-  /** Status: 0 - Inativa, 1 - Ativa */
-  @Column({ 
-    type: "tinyint", 
-    default: 1, 
-    comment: "Status: 0 - Inativa, 1 - Ativa" 
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: 'Status: 0 - inativo, 1 - ativo',
   })
   status!: number;
 
-  /** Nome da cidade (ex: 'São Paulo') */
-  @Column({ 
-    type: "text", 
-    nullable: false, 
-    comment: "Nome da cidade" 
+  @Column({
+    type: 'text',
+    nullable: false,
+    comment: 'Nome da cidade',
   })
   nome!: string;
 
-  /** Nome do estado (ex: 'SP') */
-  @Column({ 
-    type: "text", 
-    nullable: false, 
-    comment: "Nome do estado onde a cidade está localizada" 
+  @Column({
+    type: 'text',
+    name: 'Estado',
+    nullable: false,
+    comment: 'Nome do estado',
   })
   estado!: string;
 
-  // --- RELACIONAMENTOS ---
-
-  /** Locais de atendimento nesta cidade */
-  @OneToMany(() => Local, (local) => local.cidadeRef)
+  // Relação com Local (OneToMany)
+  @OneToMany(() => Local, (local) => local.cidade)
   locais!: Local[];
 }

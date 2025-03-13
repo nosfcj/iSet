@@ -1,97 +1,73 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Atendimento } from "./Atendimento";
-import { Guiche } from "./Guiche";
-import { Usuario } from "./Usuario";
-import { Servico } from "./Servico";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Atendimento } from './Atendimento';
+import { Guiche } from './Guiche';
+import { Usuario } from './Usuario';
+import { Servico } from './Servico';
 
-/**
- * Representa cada serviço individual de um atendimento. A finalização de todas as ações 
- * determina o status final do atendimento.
- */
-@Entity("Acao")
+@Entity({ name: 'Acao', comment: 'Ações de atendimento vinculadas a serviços' })
 export class Acao {
-  /** Identificador único da ação */
-  @PrimaryGeneratedColumn({ name: "ID", comment: "Identificador único da ação" })
+  @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  /** Situação: 0 - Aguardando, 1 - Em atendimento, 2 - Finalizado, 3 - Adiado */
   @Column({
-    type: "int",
+    type: 'int',
     default: 0,
-    comment: "Situação: 0 - Aguardando, 1 - Em atendimento, 2 - Finalizado, 3 - Adiado"
+    comment: 'Status: 0 - aguardando, 1 - em atendimento, 2 - finalizado, 3 - adiado',
   })
   status!: number;
 
-  /** Posição do serviço na fila do atendimento */
   @Column({
-    type: "int",
+    type: 'int',
     nullable: false,
-    comment: "Posição do serviço na fila do atendimento"
+    comment: 'Posição na fila de atendimento',
   })
   posicao!: number;
 
-  /** Data efetiva do atendimento deste serviço */
   @Column({
-    type: "date",
-    name: "data",
+    type: 'date',
     nullable: true,
-    comment: "Data efetiva do atendimento deste serviço"
+    comment: 'Data do atendimento',
   })
-  dataAtendimento?: Date;
+  data!: Date | null;
 
-  /** Hora de início do atendimento (formato HH:MM:SS) */
   @Column({
-    type: "time",
-    name: "horaInicio",
+    type: 'time',
     nullable: true,
-    comment: "Hora de início do atendimento",
-    transformer: {
-      to: (value: string) => value,
-      from: (value: string) => value,
-    }
+    comment: 'Hora de início do atendimento',
   })
-  horaInicio?: string;
+  horaInicio!: string | null;
 
-  /** Hora de conclusão do atendimento (formato HH:MM:SS) */
   @Column({
-    type: "time",
-    name: "horaFim",
+    type: 'time',
     nullable: true,
-    comment: "Hora de conclusão do atendimento",
-    transformer: {
-      to: (value: string) => value,
-      from: (value: string) => value,
-    }
+    comment: 'Hora de término do atendimento',
   })
-  horaFim?: string;
+  horaFim!: string | null;
 
-  /** Observações registradas pelo atendente */
   @Column({
-    type: "text",
+    type: 'text',
     nullable: true,
-    comment: "Observações registradas pelo atendente"
+    comment: 'Anotações do atendente',
   })
-  anotacao?: string;
+  anotacao!: string | null;
 
-  // --- RELACIONAMENTOS ---
+  // Relação com Atendimento (obrigatória)
+  @ManyToOne(() => Atendimento, (atendimento) => atendimento.acoes, { nullable: false })
+  @JoinColumn({ name: 'Atendimento_ID' })
+  atendimento!: Atendimento;
 
-  /** Guichê onde a ação foi atendida */
-  @ManyToOne(() => Guiche, (guiche) => guiche.acoes)
-  @JoinColumn({ name: "Guiche_ID" })
-  guicheRef!: Guiche;
+  // Relação com Guiche (obrigatória)
+  @ManyToOne(() => Guiche, (guiche) => guiche.acoes, { nullable: false })
+  @JoinColumn({ name: 'Guiche_ID' })
+  guiche!: Guiche;
 
-  /** Atendimento ao qual esta ação pertence */
-  @ManyToOne(() => Atendimento, (atendimento) => atendimento.acoes)
-  @JoinColumn({ name: "Atendimento_ID" })
-  atendimentoRef!: Atendimento;
+  // Relação com Servico (obrigatória)
+  @ManyToOne(() => Servico, (servico) => servico.acoes, { nullable: false })
+  @JoinColumn({ name: 'Servico_ID' })
+  servico!: Servico;
 
-  /** Serviço relacionado a esta ação */
-  @ManyToOne(() => Servico, (servico) => servico.acoes)
-  @JoinColumn({ name: "Servico_ID" })
-  servicoRef!: Servico;
-
-  /** Usuário que executou esta ação (⚠️ Agora é obrigatório) */
-  @ManyToOne(() => Usuario, (usuario) => usuario.acoes, { nullable: false })
-  @JoinColumn({ name: "Usuario_ID" })
-  usuarioRef!: Usuario;
+  // Relação com Usuario (opcional)
+  @ManyToOne(() => Usuario, (usuario) => usuario.acoes, { nullable: true })
+  @JoinColumn({ name: 'Usuario_ID' })
+  usuario!: Usuario | null;
 }

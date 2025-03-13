@@ -1,40 +1,28 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Atendimento } from "./Atendimento";
+import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Atendimento } from './Atendimento';
 
-/**
- * Entidade que representa a avaliação feita pelo cidadão após um atendimento.
- * Cada avaliação pertence exclusivamente a um atendimento.
- */
-@Entity("Avaliacao")
+@Entity({ name: 'Avaliacao', comment: 'Avaliações dos cidadãos sobre atendimentos' })
 export class Avaliacao {
-  /** Identificador do atendimento associado (Chave Primária e Estrangeira) */
-  @PrimaryColumn({ name: "Atendimento_ID", comment: "ID do atendimento avaliado" })
-  atendimentoId!: number;
+  @PrimaryColumn({ name: 'Atendimento_ID' })
+  atendimentoId!: number; // PK compartilhada com Atendimento
 
-  /** Nota: 1 - Péssimo, 2 - Ruim, 3 - Razoável, 4 - Ótimo, 5 - Perfeito */
   @Column({
-    type: "int",
+    type: 'int',
+    width: 1,
     nullable: false,
-    comment: "Nota: 1 - Péssimo, 2 - Ruim, 3 - Razoável, 4 - Ótimo, 5 - Perfeito"
+    comment: 'Avaliação em estrelas: 1 (péssimo) a 5 (perfeito)',
   })
   estrelas!: number;
 
-  /** Comentário opcional sobre o atendimento */
   @Column({
-    type: "text",
+    type: 'text',
     nullable: true,
-    comment: "Comentário do cidadão sobre o atendimento"
+    comment: 'Comentário opcional do cidadão',
   })
-  comentario?: string;
+  comentario!: string | null;
 
-  /** 
-   * Relação N:1 - Cada avaliação pertence a um único atendimento.
-   * O atendimento é a entidade proprietária da relação.
-   */
-  @ManyToOne(() => Atendimento, (atendimento) => atendimento.avaliacoes, {
-    nullable: false,
-    onDelete: "NO ACTION"
-  })
-  @JoinColumn({ name: "Atendimento_ID" }) // Mapeia a coluna FK
-  atendimentoRef!: Atendimento;
+  // Relação OneToOne com Atendimento (bidirecional)
+  @OneToOne(() => Atendimento, (atendimento) => atendimento.avaliacao)
+  @JoinColumn({ name: 'Atendimento_ID' })
+  atendimento!: Atendimento;
 }
