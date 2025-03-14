@@ -80,7 +80,7 @@ export class Local {
 
   // Adicione esta relação com Conteudo (OneToMany)
   @OneToMany(() => Atendimento, (atendendo) => atendendo.local)
-  atendimentos!: Conteudo[]; // Propriedade faltante
+  atendimentos!: Atendimento[]; // Propriedade faltante
 
 
 }
