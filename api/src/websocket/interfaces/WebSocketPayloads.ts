@@ -1,7 +1,6 @@
 import { Atendimento } from '../../models/Atendimento';
+import { Acao } from '../../models/Acao';
 import { Guiche } from '../../models/Guiche';
-import { Monitor } from '../../models/Monitor';
-import { Dispositivo } from '../../models/Dispositivo';
 
 export interface BasePayload {
   timestamp: Date;
@@ -10,7 +9,14 @@ export interface BasePayload {
 
 export interface AtendimentoPayload extends BasePayload {
   atendimento: Atendimento;
+  status: number;
+}
+
+export interface AcaoPayload extends BasePayload {
+  acao: Acao;
+  atendimento: Atendimento;
   guiche?: Guiche;
+  proximaData?: Date; // Para ações adiadas
 }
 
 export interface GuichePayload extends BasePayload {
@@ -18,18 +24,8 @@ export interface GuichePayload extends BasePayload {
   status: 'DISPONIVEL' | 'OCUPADO' | 'AUSENTE';
 }
 
-export interface MonitorPayload extends BasePayload {
-  monitor: Monitor;
-  conteudo?: string;
-}
-
-export interface DispositivoPayload extends BasePayload {
-  dispositivo: Dispositivo;
-  status: 'ONLINE' | 'OFFLINE' | 'ERRO';
-}
-
-export interface ErrorPayload extends BasePayload {
-  erro: string;
-  codigo: number;
-  detalhes?: any;
+export interface PainelPayload extends BasePayload {
+  senha: string;
+  guiche: number;
+  servico: string;
 }
