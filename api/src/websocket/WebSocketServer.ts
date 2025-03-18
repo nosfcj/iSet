@@ -1,20 +1,38 @@
 /**
  * WebSocket Server Implementation
- * @lastModified 2025-03-15 21:27:15
+ * @lastModified 2025-03-18 15:28:39
  * @modifiedBy nosfcj
+ * @description Implementação do servidor WebSocket para gerenciamento de atendimentos em tempo real
  */
 import { Server, Namespace } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { WebSocketEvents } from './interfaces/WebSocketEvents';
 import { authMiddleware, checkPermission, AuthenticatedSocket } from './middleware/auth.middleware';
-import { AppDataSource } from '../data-source';
+import { AppDataSource } from '../config/database.config'; // Importação corrigida
 import { Acao } from '../models/Acao';
 import { Atendimento } from '../models/Atendimento';
 import { Monitor } from '../models/Monitor';
 import { Dispositivo } from '../models/Dispositivo';
 import { Guiche } from '../models/Guiche';
 import { Not, In } from 'typeorm';
-import { Usuario } from '../models/Usuario'; // Adicionar esta importação
+import { Usuario } from '../models/Usuario';
+
+/**
+ * Enums para status das entidades
+ */
+enum AcaoStatus {
+  AGUARDANDO = 0,
+  EM_ATENDIMENTO = 1,
+  FINALIZADO = 2,
+  REAGENDADO = 3,
+  AGUARDANDO_CONFIRMACAO = 4
+}
+
+enum AtendimentoStatus {
+  AGUARDANDO = 0,
+  EM_ATENDIMENTO = 1,
+  FINALIZADO = 2
+}
 
 export class WebSocketServer {
   private io: Server;
@@ -81,7 +99,6 @@ export class WebSocketServer {
             return socket.emit('error', { message: 'Guichê não encontrado' });
           }
 
-          // Buscar usuário completo do banco
           const usuario = socket.user?.id ? await usuarioRepo.findOne({
             where: { id: socket.user.id }
           }) : null;
@@ -90,8 +107,12 @@ export class WebSocketServer {
             return socket.emit('error', { message: 'Usuário não encontrado' });
           }
 
+          // Busca próxima ação que esteja aguardando ou aguardando confirmação
           const proximaAcao = await acaoRepo.findOne({
-            where: { status: 0 },
+            where: [
+              { status: AcaoStatus.AGUARDANDO },
+              { status: AcaoStatus.AGUARDANDO_CONFIRMACAO }
+            ],
             order: { posicao: 'ASC' },
             relations: ['atendimento', 'servico']
           });
@@ -101,17 +122,17 @@ export class WebSocketServer {
           }
 
           proximaAcao.guiche = guiche;
-          proximaAcao.usuario = usuario; // Agora atribuímos a entidade Usuario completa
+          proximaAcao.usuario = usuario;
           proximaAcao.data = new Date();
           proximaAcao.horaInicio = new Date().toTimeString().split(' ')[0];
-          proximaAcao.status = 1; // Em atendimento
+          proximaAcao.status = AcaoStatus.EM_ATENDIMENTO;
 
           await acaoRepo.save(proximaAcao);
 
           const atendimentoRepo = AppDataSource.getRepository(Atendimento);
           const atendimento = proximaAcao.atendimento;
-          if (atendimento.status === 0) {
-            atendimento.status = 1; // Em atendimento
+          if (atendimento.status === AtendimentoStatus.AGUARDANDO) {
+            atendimento.status = AtendimentoStatus.EM_ATENDIMENTO;
             await atendimentoRepo.save(atendimento);
           }
 
@@ -140,7 +161,7 @@ export class WebSocketServer {
 
       socket.on('acao:finalizar', async (data: { 
         id: number, 
-        status: 2 | 3,
+        status: AcaoStatus.FINALIZADO | AcaoStatus.REAGENDADO | AcaoStatus.AGUARDANDO_CONFIRMACAO,
         proximaData?: Date,
         anotacao?: string 
       }) => {
@@ -158,25 +179,42 @@ export class WebSocketServer {
           acao.status = data.status;
           acao.horaFim = new Date().toTimeString().split(' ')[0];
           if (data.anotacao) acao.anotacao = data.anotacao;
-          if (data.status === 3 && data.proximaData) acao.data = data.proximaData;
+          if (data.status === AcaoStatus.REAGENDADO && data.proximaData) {
+            acao.data = data.proximaData;
+          }
 
           await acaoRepo.save(acao);
 
+          // Verifica se existem ações pendentes (não finalizadas ou reagendadas)
           const acoesRestantes = await acaoRepo.count({
             where: { 
               atendimento: { id: acao.atendimento.id },
-              status: Not(In([2, 3]))
+              status: Not(In([AcaoStatus.FINALIZADO, AcaoStatus.REAGENDADO]))
             }
           });
 
           if (acoesRestantes === 0) {
             const atendimentoRepo = AppDataSource.getRepository(Atendimento);
-            acao.atendimento.status = 2;
+            acao.atendimento.status = AtendimentoStatus.FINALIZADO;
             acao.atendimento.dataFinal = new Date();
             await atendimentoRepo.save(acao.atendimento);
           }
 
-          const eventName = data.status === 2 ? 'acao:finalizada' : 'acao:adiada';
+          let eventName: string;
+          switch (data.status) {
+            case AcaoStatus.FINALIZADO:
+              eventName = 'acao:finalizada';
+              break;
+            case AcaoStatus.REAGENDADO:
+              eventName = 'acao:adiada';
+              break;
+            case AcaoStatus.AGUARDANDO_CONFIRMACAO:
+              eventName = 'acao:aguardando_confirmacao';
+              break;
+            default:
+              eventName = 'acao:status_alterado';
+          }
+
           namespace.emit(eventName, {
             acao,
             atendimento: acao.atendimento,
@@ -188,6 +226,41 @@ export class WebSocketServer {
         } catch (error: unknown) {
           socket.emit('error', {
             message: 'Erro ao finalizar ação',
+            error: error instanceof Error ? error.message : 'Erro desconhecido'
+          });
+        }
+      });
+
+      // Novo handler para confirmar uma ação que está aguardando confirmação
+      socket.on('acao:confirmar', async (data: { id: number }) => {
+        try {
+          const acaoRepo = AppDataSource.getRepository(Acao);
+          const acao = await acaoRepo.findOne({
+            where: { id: data.id },
+            relations: ['atendimento']
+          });
+
+          if (!acao) {
+            throw new Error('Ação não encontrada');
+          }
+
+          if (acao.status !== AcaoStatus.AGUARDANDO_CONFIRMACAO) {
+            throw new Error('Ação não está aguardando confirmação');
+          }
+
+          acao.status = AcaoStatus.AGUARDANDO;
+          await acaoRepo.save(acao);
+
+          namespace.emit('acao:confirmada', {
+            acao,
+            atendimento: acao.atendimento,
+            timestamp: new Date(),
+            origem: socket.id
+          });
+
+        } catch (error: unknown) {
+          socket.emit('error', {
+            message: 'Erro ao confirmar ação',
             error: error instanceof Error ? error.message : 'Erro desconhecido'
           });
         }
