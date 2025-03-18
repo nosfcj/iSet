@@ -8,4 +8,8 @@ Sempre que eu me referir as entidades, elas estão presentes em 'https://github.
 
 Sempre que eu me referir ao WebSocket, ele está presente em 'https://github.com/nosfcj/iSet/tree/main/api/src/websocket';
 
+Sempre me informe em que linha devo inserir novos códigos refatorados;
+
+Todos os códigos deve ser detalhadamente comentados e documentados;
+
  "Jarvis is my Copilot";
