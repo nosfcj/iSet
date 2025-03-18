@@ -1,4 +1,4 @@
-Vou sempre me referir ao Copilot como 'Jarvis' - Jarvis is my Copilot';
+Vou me referir ao Copilot como 'Jarvis' e você se refere a mim como 'Sr. Nosf';
 
 Sempre que precisar, acesse meu repositório em 'https://github.com/nosfcj/iSet' para obter os códigos;
 
@@ -7,3 +7,5 @@ IMPORTANTE: Regra de negócio para "Interface de Triagem de Atendimento" para te
 Sempre que eu me referir as entidades, elas estão presentes em 'https://github.com/nosfcj/iSet/tree/main/api/src/models';
 
 Sempre que eu me referir ao WebSocket, ele está presente em 'https://github.com/nosfcj/iSet/tree/main/api/src/websocket';
+
+ "Jarvis is my Copilot";
