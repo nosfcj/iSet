@@ -1,43 +1,71 @@
+/**
+ * SubAgregador Entity
+ * @file api/src/models/SubAgregador.ts
+ * @lastModified 2025-03-18 19:13:36
+ * @modifiedBy nosfcj
+ * @description Entidade que representa as divisões dentro de um agregador, como setores de uma central de atendimento
+ */
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Agregador } from './Agregador';
 import { Local } from './Local';
 import { Monitor } from './Monitor';
 
+/**
+ * Enum para status do subagregador
+ */
+export enum SubAgregadorStatus {
+  DESATIVADO = 0,
+  ATIVADO = 1
+}
 
 @Entity({ 
-  name: 'SubAgregador', 
-  comment: 'Essa tabela contem informações sobre os agrupamentos pertencentes a um local agregador, como divisões de uma central de atendimento.'
+  name: 'SubAgregador',
+  comment: 'Contém informações sobre as divisões de locais agregadores, como setores de uma central de atendimento'
 })
 export class SubAgregador {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int',
+    comment: 'Identificador único do subagregador'
+  })
   id!: number;
 
   @Column({
+    name: 'status',
     type: 'tinyint',
-    default: 1,
+    default: SubAgregadorStatus.ATIVADO,
     nullable: false,
-    comment: 'Status que define situação do sub-agregador disponibilizados pelo agregador: 0 - desativado, 1 ativado. Quando um agregador for desativado, todos os serviços da unidade desse subagregador, bem como todos os serviços deverão ser desativados.',
+    comment: 'Status: 0-desativado, 1-ativado. A desativação afeta todos os serviços vinculados',
+    enum: SubAgregadorStatus
   })
-  status!: number;
+  status!: SubAgregadorStatus;
 
   @Column({
+    name: 'nome',
     type: 'text',
     nullable: false,
-    comment: 'Nome do agregador',
+    comment: 'Nome do subagregador'
   })
   nome!: string;
 
-  // Relação com Agregador
-  @ManyToOne(() => Agregador, (agregador) => agregador.subAgregadores)
+  @Column({
+    name: 'Agregador_ID',
+    type: 'int',
+    nullable: false,
+    comment: 'ID do agregador ao qual este subagregador pertence'
+  })
+  agregadorId!: number;
+
+  // Relação com Agregador (obrigatória)
+  @ManyToOne(() => Agregador, (agregador: Agregador) => agregador.subAgregadores)
   @JoinColumn({ name: 'Agregador_ID' })
-  agregadores!: Agregador;
+  agregador!: Agregador;
 
   // Relação com Local
-  @OneToMany(() => Local, (local) => local.subAgregador)
+  @OneToMany(() => Local, (local: Local) => local.subAgregador)
   locais!: Local[];
 
   // Relação com Monitor
-  @OneToMany(() => Monitor, (monitor) => monitor.subAgregador)
+  @OneToMany(() => Monitor, (monitor: Monitor) => monitor.subAgregador)
   monitores!: Monitor[];
-
 }

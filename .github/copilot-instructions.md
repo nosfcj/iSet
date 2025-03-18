@@ -1,5 +1,12 @@
 Vou me referir ao Copilot como 'Jarvis' e você se refere a mim como 'Sr. Nosf';
 
+* Níveis de Usuário:
+1 - Atendente;
+2 - Supervisor;
+3 - Editor;
+4 - Gestor.  
+5 - Administrador;
+
 * SEMPRE GARANTIR A PRIORIZAÇÃO DO DESEMPENHO E A CONSISTÊNCIA DOS DADOS,  mantendo o processamento e as informações pertinentes ao atendimento da triagem no lado do cliente e salvar no banco de dados apenas quando o atendimento for finalizado, poupando ao máximo tráfego na rede e requisições excessivas à API e ao banco de dados e evitando inconsistências;
 
 * Acesse meu repositório em 'https://github.com/nosfcj/iSet' para obter os códigos, todas as vezes;

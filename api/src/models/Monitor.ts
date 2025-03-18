@@ -1,7 +1,7 @@
 /**
  * Monitor Entity
  * @file api/src/models/Monitor.ts
- * @lastModified 2025-03-18 16:24:03
+ * @lastModified 2025-03-18 19:15:52
  * @modifiedBy nosfcj
  * @description Entidade que representa os monitores chamadores de senha
  */
@@ -20,12 +20,13 @@ export enum MonitorStatus {
 
 @Entity({ 
   name: 'Monitor',
-  comment: 'Contém cadastro dos monitores chamadores de senha e quais senhas cada um chamará.'
+  comment: 'Contém informações dos monitores chamadores de senha e suas configurações'
 })
 export class Monitor {
   @PrimaryColumn({ 
     name: 'Dispositivo_ID',
-    comment: 'ID que define qual dispositivo cadastrado no sistema terá as configurações de Monitor de Senhas.'
+    type: 'int',
+    comment: 'ID do dispositivo que terá as configurações de Monitor de Senhas'
   })
   dispositivoId!: number;
 
@@ -34,7 +35,7 @@ export class Monitor {
     type: 'tinyint',
     nullable: false,
     default: MonitorStatus.ATIVO,
-    comment: 'Define status do Monitor de Senhas: 0 - Inativo, 1 - Ativo.',
+    comment: 'Status do Monitor: 0-inativo, 1-ativo',
     enum: MonitorStatus
   })
   status!: MonitorStatus;
@@ -44,7 +45,7 @@ export class Monitor {
     type: 'varchar',
     length: 255,
     nullable: false,
-    comment: 'Rótulo que irá nomear o Monitor de Senhas, para identificações.'
+    comment: 'Rótulo de identificação do Monitor de Senhas'
   })
   rotulo!: string;
 
@@ -53,7 +54,7 @@ export class Monitor {
     type: 'timestamp',
     nullable: false,
     default: () => 'CURRENT_TIMESTAMP',
-    comment: 'Data do cadastro do Monitor de Senhas.'
+    comment: 'Data e hora do cadastro do Monitor'
   })
   dataCadastro!: Date;
 
@@ -61,36 +62,30 @@ export class Monitor {
     name: 'Usuario_ID',
     type: 'int',
     nullable: false,
-    comment: 'Usuário que cadastrou este Monitor de Senhas.'
+    comment: 'ID do usuário que cadastrou este Monitor'
   })
   usuarioId!: number;
 
   @Column({
-    name: 'SubAgregador_ID', // Corrigido de SubAgregado_ID para SubAgregador_ID
+    name: 'SubAgregador_ID',
     type: 'int',
     nullable: false,
-    comment: 'ID do SubAgregador ao qual este monitor está vinculado.'
+    comment: 'ID do SubAgregador ao qual este Monitor está vinculado'
   })
   subAgregadorId!: number;
 
-   // Relação OneToOne com Dispositivo (PK compartilhada)
-   @OneToOne(() => Dispositivo, (dispositivo) => dispositivo.monitor)
-   @JoinColumn({ name: 'Dispositivo_ID' })
-   dispositivo!: Dispositivo;
- 
-   // Relação com Usuario (obrigatória)
-   @ManyToOne(() => Usuario)  // Removido o relacionamento inverso por enquanto
-   @JoinColumn({ name: 'Usuario_ID' })
-   usuario!: Usuario;
- 
-   // Relação com SubAgregador (obrigatória)
-   @ManyToOne(() => SubAgregador, (subAgregador) => subAgregador.monitores)
-   @JoinColumn({ name: 'SubAgregador_ID' })
-   subAgregador!: SubAgregador;
- 
-}
+  // Relação OneToOne com Dispositivo (PK compartilhada)
+  @OneToOne(() => Dispositivo, (dispositivo: Dispositivo) => dispositivo.monitor)
+  @JoinColumn({ name: 'Dispositivo_ID' })
+  dispositivo!: Dispositivo;
 
-/**
- * @lastModified 2025-03-18 16:24:03
- * @modifiedBy nosfcj
- */
+  // Relação com Usuario (obrigatória)
+  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.monitores)
+  @JoinColumn({ name: 'Usuario_ID' })
+  usuario!: Usuario;
+
+  // Relação com SubAgregador (obrigatória)
+  @ManyToOne(() => SubAgregador, (subAgregador: SubAgregador) => subAgregador.monitores)
+  @JoinColumn({ name: 'SubAgregador_ID' })
+  subAgregador!: SubAgregador;
+}
