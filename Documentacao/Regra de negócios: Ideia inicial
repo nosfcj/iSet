@@ -1,0 +1,25 @@
+Vamos desenvolver juntos um sistema, chamado “iSet”. Consiste em um ecossistema com 5 aplicações independentes, mas comunicando-se entre si, através um de API em JSON e websocket I/O auxiliado por IA, como núcleo. 
+
+1 - Uma aplicação do tipo catálogo de serviços, que irá fornecer informações sobre os serviços oferecidos e seus pré-requisitos, além de locais de atendimento possíveis. Possuirá um dashboard, acessada via login, permitido au um nível de usuário específico, que vai permitir a criação e edição dos conteúdos necessários para as informações sobre os serviços disponíveis ao cidadão. Essa aplicação estará disponível na internet e será no formato de página web e será rotulada como “Protocolo Guia”. 
+
+2 - Uma aplicação, acessada via login, capaz de gerar atendimentos identificados através de senhas por um usuário de status atendente, que fará uma triagem e colocará em uma fila, um ou mais serviços oferecidos pela aplicação catálogo, em um atendimento, identificado por uma senha e outro atendente fará o atendimento dos serviços solicitados pelo atendimento identificado pela senha gerada, levando em consideração, lista de prioridades na fila de senhas. Essa interface será acessada via navegador, rodando em qualquer sistema operacional. Nesta mesma aplicação, um usuário de status superior, tipo supervisor, será capaz de gerenciar os atendimentos, visualizando filas e podendo reorganizar para dar celeridade às conclusões dos atendimentos. Essa aplicação será rotulada como “Protocolo Set”.
+
+3 - O cidadão também poderá acompanhar o chamamento de sua senha através de um monitor na parede, em um aplicativo para rodar num PC com Linux, sem GUI, mas que seja estilizado e capaz de informar por áudio e texto a senha e o local da vez. Também terá que ser um aplicativo desktop, que rode em qualquer distribuição Linux. As configurações não necessitarão de login e um usuário de nível específico. Essa aplicação será rotulada como “Protocolo Monitor”.
+
+4 - Haverá, também, uma app, acessado via login, que poderá ser do Facebook ou Google com Auth0, onde o cidadão poderá acompanhar seu atendimento. No mesmo app também poderá solicitar um ou vários serviços, oferecidos pelo "Protocolo Guia", no celular, através de um app, que rode em Android ou iOS. Essa aplicação será rotulada como “Protocolo Portátil”.
+
+5 - Também existirá uma aplicação, acessada via login, acessivel a um nível de usuário específico, que irá gerenciar os usuários, suas permissões e status, além de gerar relatórios referentes aos atendimentos e ao uso de todos os sistemas, que serão definidos no decorrer do desenvolvimento. Essa aplicação deverá ser acessada por um navegador web e será rotulada como “Protocolo Gestor”.
+
+Todas as interfaces devem ser sóbrias, simples e limpa, com a menor quantidade de botões e links possíveis, com uma UX intuitiva principalmente para usuários leigos e serão detalhadas no decorrer do projeto. 
+
+Onde houver necessidade de login, deverá ser seguro e os dados devem ser transmitidos criptografados, ponta a ponta. 
+
+No núcleo, usaremos a API do Ollama, como IA, para melhorar a experiência na gestão de filas de atendimento. Também será usada na busca por serviços no catálogo do "Protocolo Guia" e geração de relatórios no "Protocolo Gestor".
+ 
+O sistema será desenvolvido em Javascript, com NodeJS e TypeScript, usando React para estilização, onde for executado em navegadores web, React Native, onde for exibido em celulares e React Electron onde houver necessidade de aplicação desktop, além do Express, TypeORM para uso do Migration, melhorando a criação, manipulação e conexão com servidor web. Todos nas versões mais atuais.Não usaremos Docker, por enquanto.
+
+Usaremos como banco de dados, o MariaDB. Pensaremos nas entidades de cada aplicação a medida que formos avançando e se ouver qualquer alteração no banco de dados, alteraremos no Migration e executaremos. Ao fim de cada jornada, atualizaremos nosso repositório.
+
+
+
+

@@ -1,0 +1,40 @@
+Vou resumir todos os protocolos para você ter ciência e me ajudar a escolher o que programar primeiro...
+
+Primeira aplicação, serão cadastrados os serviços oferecidos ao Cidadão, mostrando informações pertinente aos pré-requisitos para o atendimento de um determinado serviço de um local de atendimento. Também terá um chat, manipulado por um robô ou um humano, dependendo da situação, para interação com o usuário. Essa aplicação será fundamental para disponibilizar os serviços oferecidos na aplicação do "Protocolo Atendente", pois é dessa base de dados, onde sairão os serviços disponíveis lá. Essa aplicação terá duas interfaces: uma para o cidadão, que visualizará os serviços oferecidos, podendo ser pesquisados por serviços e/ou locais de atendimento, mostrando todas as informações pertinentes a um serviço. Haverá também, outra interface que será acessada por login, que permitirá a edição das informações e serviços oferecidos. Apenas usuário de nível Administrador, Gestor, Supervisor ou Editor acessarão a interface de edição da carta de serviços oferecidos ao cidadão. Esta aplicação, chamaremos de "Protocolo Carta". 
+
+A segunda  aplicação com uma interface para usuário de qualquer nivel definido em Usuario.nivel na tabela de dados, está permitidos para esta interface, e que fará o início do atendimento, onde o atendente vai inserir um ou mais serviços, em um ou mais locais para o atendimento do cidadão (todas as informações sobre os serviços estarão disponíveis ao cidadão e ao atendente, pelo "Protocolo Carta") e gerar e imprimir uma senha para o atendimento, que será impressa em impressoras específicas para isso. Também será possível o cadastro de senhas com prioridade de atendimento para uma maior celeridade no atendimento de pessoas com necessidades especiais, que podem ser gestantes, obesos, autistas e idosos. Além dessa função, existirá neste mesmo aplicativo, uma interface para poder gerenciar posições para dar mais celeridade aos atendimentos, sendo essa função acessada apenas por usuário de status diferente do Atendente, que será chamado de Supervisor, que poderá acessar outras informações pertinentes, como gerar relatório, editar informações do atendimento e outras informações, que será acessado por um aplicativo desktop. Cada usuário deverá acessar o sistema através de login e cada computador deverá ser identificado como "Local", que pode ser um Guichê de um local de atendimento definido no banco de dados. Chamaremos essa parte de "Protocolo Set".  
+
+A terceira aplicação, será de acesso exclusivo de usuário com um outro status, mais elevado, que será Administrador Gestor, via login. Nele, o usuário será capaz de inserir usuários no sistema, guichês e balcões de atendimento (apenas nivel administrador), Locais de Atendimento, gerar relatórios pertinentes aos atendimentos e outras funções que serão definidas antes de iniciar a programação dessa aplicação. Essa aplicação deverá ser capaz de coletar qualquer falha nas aplicações, para que seja possível achar qualquer falha e dar manutenção. Além disso, com exceção do "Protocolo Cidadão" e "Protocolo Monitor", ser possível comunicação com o Gestor, através de chat. Chamaremos essa aplicação de "Protocolo Gestor".
+
+A quarta aplicação, onde visualizada em um monitor LCD no local, chamando a senha da vez, conectada e executada em um PC com Linux, sem GUI, mas estilizada, com visual simples, de fácil visualização, onde ele vai mostrar a senha, bem desataca, assim como o guichê do atendimento. Também deverá mostrar as últimas 4 senhas chamadas, em menor escala de visualização, sendo informações necessárias para uma melhor informação do cidadão. Essa aplicação chama as senhas, a medida em que elas forem liberadas do websocket i/o, a partir do momento em que o atendimento dos serviços mudam de status. O websocket irá levar em consideraçãoas prioridades citadas no Protocolo Set - nesse caso, o idoso que for mais velho, terá maior prioridade na fila . Deverá ter uma interface para configuração dos órgãos que serão chamados pelo monitor, através de um usuário, não sendo necessária login, apenas verificando se há configuração definida, mas com a possibilidade de edição de configuração. Essa aplicação deverá, também, informar, através de áudio, a senha chamada e o Guichê de Atendimento. Será um aplicativo estilizado, executado via bash em um S.O linux Debian. Chamaremos essa parte de "Protocolo Monitor". 
+
+A quinta aplicação é para o Cidadão, onde o mesmo poderá, além de acompanhar a senha ser chamada e ser notificado com algumas senhas de antecedência (definidas por um usuário administrador pelo "Protocolo Gestor"), até chegar sua vez de ser atendido. Além disso, também poderá pedir um atendimento para um ou mais serviços, que gere senha, através de um app em um celular, seja ele Android ou iPhone. O cidadão deverá se cadastrar para acessar o sistema, através de login, com CPF e senha, cadastrados por um atendente num balcão de triagem, mas também poderá logar com conta Google ou Facebook.  Para o cadastro de Cidadão com necessidades especiais, apenas o atendente poderá definir um nível de prioridade acima do normal - o padrão para serviços solicitados pelo app será definido como normal. Também será possível a avaliação do atendimento através de 5 estrelas, onde "péssimo" será avaliado com 1 estrela, "ruim" com 2 estrelas, "razoável" com 3 estrelas e "ótimo" com 4 estrelas e "perfeito" com 5 estrelas. Chamaremos esta aplicação de "Protocolo Cidadão". 
+
+
+
+Imagino aqui que deveremos iniciar a programar a API do núcleo (core), pois imagino que será ela quem irá manipular os dados como primeira. Como segunda etapa de programação, iremos programar o websocket i/o.  O que você acha?
+
+
+
+
+
+
+_____
+ O sitema Nosf!CJ's iSet é estruturado para gerenciar serviços públicos, cidadãos e atendimentos. Esse sistema suporta um sistema de gestão de atendimento ao cidadão, totalmente descentralizada,autorgando responsabilidades a diversas equipes ou departamentos de gestão de informação, gerenciamento e atendimento, permitindo cadastro, atendimento e avaliação do serviços oferecidos ao cidadão, além de auditorias de serviços prestados pelos órgãos públicos.
+
+ É capaz de agregar unidades de atendimento que agrupam serviços, criar subdivisões de agregadores, como setores ou praças de atendimento, responsáveis pelos serviços oferecidos por unidades, como órgãos em uma praça de uma central de atendimentos, por exemplo, em vários locais e/ou em cidades diferentes.
+
+ Todo o atendimento pode ser monitorado por celular pelo cidadão, permitindo que cidadãos avaliem os atendimentos recebidos, ao final do atendimento. O próprio cidadão pode se cadastrar e ele mesmo pedir um atendimento de casa. Todos os serviços possuem descrições detalhadas, oferecidos por uma interface guia, disponibilizado pela internet ao cidadão, padronizados para requisitos necessários para acessar determinados serviços, o que permite ao cidadão fazer uma auto-triagem de seu atendimento. 
+ 
+ Também possue uma ótima interface pra ser exibida em monitores de chamada de senha para atendimento, no local de atendimento, com áudio e fontes grandes e coloridas, permitindo acessibilidade a pessoas com alguma limitação.
+
+ Registra atendimentos prestados aos cidadãos, identifica os guichês disponíveis para atendimento e registra ações executadas durante um atendimento.
+
+ Todos os serviços possuem descrições detalhadas, oferecidos por uma interface guia, disponibilizado pela internet ao cidadão, padronizados para requisitos necessários para acessar determinados serviços.
+
+É capaz de registrar eventos críticos no sistema, como falhas e acessos suspeitos, permitindo uma auditoria interna e controlar dispositivos autorizados a acessar o sistema.
+
+Tudo isso em interfaces simples e intuitivas, tanto para o usuário do sistema quanto para o cidadão que utiliza os serviços.
+
+Nosf!CJ's iSet é um Sistema Eletrônico de Triagem feito para 
+descentralizar responsabilidades para um gerenciamento inteligente!
