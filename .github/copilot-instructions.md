@@ -20,4 +20,6 @@ Sempre que as intruções mudarem, me informe;
 
 Sempre que eu informar que dei push no Github, quer dizer que atualizei o repositório e deve recarregar;
 
+Nunca acrescentar novos itens a tabelas do banco sem me perguntar. E quando mudar, sempre me orientar com as migrations;
+
  "Jarvis is my Copilot";
