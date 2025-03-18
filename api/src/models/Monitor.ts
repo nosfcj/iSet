@@ -1,7 +1,22 @@
+/**
+ * Monitor Entity
+ * @file api/src/models/Monitor.ts
+ * @lastModified 2025-03-18 16:24:03
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os monitores chamadores de senha
+ */
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Dispositivo } from './Dispositivo';
 import { Usuario } from './Usuario';
 import { SubAgregador } from './SubAgregador';
+
+/**
+ * Enum para status do monitor
+ */
+export enum MonitorStatus {
+  INATIVO = 0,
+  ATIVO = 1
+}
 
 @Entity({ 
   name: 'Monitor',
@@ -18,10 +33,11 @@ export class Monitor {
     name: 'status',
     type: 'tinyint',
     nullable: false,
-    default: 1,
-    comment: 'Define status do Monitor de Senhas: 0 - Inativo, 1 - Ativo.'
+    default: MonitorStatus.ATIVO,
+    comment: 'Define status do Monitor de Senhas: 0 - Inativo, 1 - Ativo.',
+    enum: MonitorStatus
   })
-  status!: number;
+  status!: MonitorStatus;
 
   @Column({
     name: 'rotulo',
@@ -50,25 +66,31 @@ export class Monitor {
   usuarioId!: number;
 
   @Column({
-    name: 'SubAgregado_ID',
+    name: 'SubAgregador_ID', // Corrigido de SubAgregado_ID para SubAgregador_ID
     type: 'int',
     nullable: false,
-    comment: 'De quais orgãos pertencentes ao SubAgregador serão chamados os serviços.'
+    comment: 'ID do SubAgregador ao qual este monitor está vinculado.'
   })
-  subAgregadoId!: number;
+  subAgregadorId!: number;
 
-  // Relação OneToOne com Dispositivo (PK compartilhada)
-  @OneToOne(() => Dispositivo)
-  @JoinColumn({ name: 'Dispositivo_ID' })
-  dispositivo!: Dispositivo;
-
-  // Relação com Usuario (obrigatória)
-  @ManyToOne(() => Usuario)
-  @JoinColumn({ name: 'Usuario_ID' })
-  usuario!: Usuario;
-
-  // Relação com SubAgregador (obrigatória)
-  @ManyToOne(() => SubAgregador)
-  @JoinColumn({ name: 'SubAgregado_ID' })
-  subAgregador!: SubAgregador;
+   // Relação OneToOne com Dispositivo (PK compartilhada)
+   @OneToOne(() => Dispositivo, (dispositivo) => dispositivo.monitor)
+   @JoinColumn({ name: 'Dispositivo_ID' })
+   dispositivo!: Dispositivo;
+ 
+   // Relação com Usuario (obrigatória)
+   @ManyToOne(() => Usuario)  // Removido o relacionamento inverso por enquanto
+   @JoinColumn({ name: 'Usuario_ID' })
+   usuario!: Usuario;
+ 
+   // Relação com SubAgregador (obrigatória)
+   @ManyToOne(() => SubAgregador, (subAgregador) => subAgregador.monitores)
+   @JoinColumn({ name: 'SubAgregador_ID' })
+   subAgregador!: SubAgregador;
+ 
 }
+
+/**
+ * @lastModified 2025-03-18 16:24:03
+ * @modifiedBy nosfcj
+ */

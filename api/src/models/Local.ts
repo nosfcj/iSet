@@ -1,3 +1,10 @@
+/**
+ * Local Entity
+ * @file api/src/models/Local.ts
+ * @lastModified 2025-03-18 16:45:09
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os locais de atendimento de serviços
+ */
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Unidade } from './Unidade';
 import { Agregador } from './Agregador';
@@ -7,6 +14,14 @@ import { Conteudo } from './Conteudo';
 import { Guiche } from './Guiche';
 import { Atendimento } from './Atendimento';
 
+/**
+ * Enum para status do local
+ */
+export enum LocalStatus {
+  DESATIVADO = 0,
+  ATIVO = 1
+}
+
 @Entity({
   name: 'Local',
   comment: 'Locais de atendimento de serviços'
@@ -14,7 +29,8 @@ import { Atendimento } from './Atendimento';
 export class Local {
   @PrimaryGeneratedColumn({
     name: 'ID',
-    type: 'int'
+    type: 'int',
+    comment: 'Identificador único do local'
   })
   id!: number;
 
@@ -22,16 +38,17 @@ export class Local {
     name: 'status',
     type: 'tinyint',
     nullable: false,
-    default: 1,
-    comment: 'Status: 0 - desativado, 1 - ativo'
+    default: LocalStatus.ATIVO,
+    comment: 'Status: 0 - desativado, 1 - ativo',
+    enum: LocalStatus
   })
-  status!: number;
+  status!: LocalStatus;
 
   @Column({
     name: 'endereco',
     type: 'text',
     nullable: true,
-    comment: 'Endereço físico do local'
+    comment: 'Endereço físico completo do local de atendimento'
   })
   endereco!: string | null;
 
@@ -39,7 +56,7 @@ export class Local {
     name: 'linkMaps',
     type: 'text',
     nullable: true,
-    comment: 'Link do Google Maps'
+    comment: 'Link do Google Maps para localização do estabelecimento'
   })
   linkMaps!: string | null;
 
@@ -47,7 +64,7 @@ export class Local {
     name: 'telefone',
     type: 'text',
     nullable: true,
-    comment: 'Telefones (separados por ";")'
+    comment: 'Lista de telefones separados por ponto e vírgula (;)'
   })
   telefone!: string | null;
 
@@ -56,72 +73,71 @@ export class Local {
     type: 'varchar',
     length: 15,
     nullable: true,
-    comment: 'CEP do local'
+    comment: 'CEP do local no formato 00000-000'
   })
   cep!: string | null;
 
   @Column({
     name: 'Orgao_ID',
     type: 'int',
-    nullable: false
+    nullable: false,
+    comment: 'ID da unidade (órgão) ao qual este local pertence'
   })
-  orgaoId!: number;
+  unidadeId!: number;
 
   @Column({
     name: 'Agregador_ID',
     type: 'int',
-    nullable: false
+    nullable: false,
+    comment: 'ID do agregador ao qual este local está vinculado'
   })
   agregadorId!: number;
 
   @Column({
     name: 'SubAgregador_ID',
     type: 'int',
-    nullable: true
+    nullable: true,
+    comment: 'ID do subagregador ao qual este local está vinculado (opcional)'
   })
   subAgregadorId!: number | null;
 
   @Column({
     name: 'Cidade_ID',
     type: 'int',
-    nullable: false
+    nullable: false,
+    comment: 'ID da cidade onde o local está situado'
   })
   cidadeId!: number;
 
-  // Relação com Orgao (ManyToOne)
-  @ManyToOne(() => Unidade)
+  // Relação com Unidade (anteriormente Orgao)
+  @ManyToOne(() => Unidade, (unidade: Unidade) => unidade.locais)
   @JoinColumn({ name: 'Orgao_ID' })
   unidade!: Unidade;
 
-  // Relação com Agregador (ManyToOne)
-  @ManyToOne(() => Agregador, (agregador) => agregador.locais)
+  // Relação com Agregador
+  @ManyToOne(() => Agregador, (agregador: Agregador) => agregador.locais)
   @JoinColumn({ name: 'Agregador_ID' })
   agregador!: Agregador;
 
-  // Relação com SubAgregador (ManyToOne - opcional)
-  @ManyToOne(() => SubAgregador, (subAgregador) => subAgregador.locais, { nullable: true })
+  // Relação com SubAgregador (opcional)
+  @ManyToOne(() => SubAgregador, (subAgregador: SubAgregador) => subAgregador.locais, { nullable: true })
   @JoinColumn({ name: 'SubAgregador_ID' })
   subAgregador!: SubAgregador | null;
 
-  // Relação com Cidade (ManyToOne)
-  @ManyToOne(() => Cidade)
+  // Relação com Cidade
+  @ManyToOne(() => Cidade, (cidade: Cidade) => cidade.locais)
   @JoinColumn({ name: 'Cidade_ID' })
   cidade!: Cidade;
 
-  // Relação com Conteudo (OneToMany)
-  @OneToMany(() => Conteudo, (conteudo) => conteudo.local)
+  // Relação com Conteudo
+  @OneToMany(() => Conteudo, (conteudo: Conteudo) => conteudo.local)
   conteudos!: Conteudo[];
 
-  // Relação com Guiche (OneToMany)
-  @OneToMany(() => Guiche, (guiche) => guiche.local)
+  // Relação com Guiche
+  @OneToMany(() => Guiche, (guiche: Guiche) => guiche.local)
   guiches!: Guiche[];
 
-  // Relação com Atendimento (OneToMany)
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.local)
+  // Relação com Atendimento
+  @OneToMany(() => Atendimento, (atendimento: Atendimento) => atendimento.local)
   atendimentos!: Atendimento[];
 }
-
-/**
- * @lastModified 2025-03-17 23:29:00
- * @modifiedBy nosfcj
- */

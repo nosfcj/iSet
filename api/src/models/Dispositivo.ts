@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Usuario } from './Usuario';
 import { Cidadao } from './Cidadao';
+import { Monitor } from './Monitor';
+
 
 @Entity({ 
   name: 'Dispositivo',
@@ -72,4 +74,9 @@ export class Dispositivo {
   @ManyToOne(() => Cidadao)
   @JoinColumn({ name: 'Cidadao_ID' })
   cidadao!: Cidadao | null;
+
+  // Relação inversa com Monitor
+  @OneToOne(() => Monitor, (monitor) => monitor.dispositivo)
+  monitor!: Monitor;
+
 }

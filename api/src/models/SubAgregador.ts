@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Agregador } from './Agregador';
 import { Local } from './Local';
+import { Monitor } from './Monitor';
+
 
 @Entity({ 
   name: 'SubAgregador', 
@@ -33,4 +35,9 @@ export class SubAgregador {
   // Relação com Local
   @OneToMany(() => Local, (local) => local.subAgregador)
   locais!: Local[];
+
+  // Relação com Monitor
+  @OneToMany(() => Monitor, (monitor) => monitor.subAgregador)
+  monitores!: Monitor[];
+
 }
