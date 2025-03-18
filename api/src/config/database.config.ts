@@ -10,12 +10,13 @@ import { Direcionamento } from "../models/Direcionamento";
 import { Dispositivo } from "../models/Dispositivo";
 import { Guiche } from "../models/Guiche";
 import { Local } from "../models/Local";
+import { LoginUsuario } from "../models/LoginUsuario";
 import { Monitor } from "../models/Monitor";
-import { Unidade } from "../models/Unidade";
 import { Requisito } from "../models/Requisito";
 import { Rotulo } from "../models/Rotulo";
 import { Servico } from "../models/Servico";
 import { SubAgregador } from "../models/SubAgregador";
+import { Unidade } from "../models/Unidade";
 import { Usuario } from "../models/Usuario";
 
 export const AppDataSource = new DataSource({
@@ -39,6 +40,7 @@ export const AppDataSource = new DataSource({
         Dispositivo,
         Guiche,
         Local,
+        LoginUsuario,
         Monitor,
         Requisito,
         Rotulo,
@@ -64,6 +66,6 @@ export const testConnection = async () => {
 };
 
 /**
- * @lastModified 2025-03-18 00:20:22
+ * @lastModified 2025-03-18 00:24:23
  * @modifiedBy nosfcj
  */
