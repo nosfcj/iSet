@@ -3,6 +3,7 @@ import { Acao } from "../models/Acao";
 import { Agregador } from "../models/Agregador";
 import { Atendimento } from "../models/Atendimento";
 import { AuditoriaInterna } from "../models/AuditoriaInterna";
+import { Cidadao } from "../models/Cidadao";
 import { Cidade } from "../models/Cidade";
 import { Codigos } from "../models/Codigos";
 import { Conteudo } from "../models/Conteudo";
@@ -10,6 +11,7 @@ import { Direcionamento } from "../models/Direcionamento";
 import { Dispositivo } from "../models/Dispositivo";
 import { Guiche } from "../models/Guiche";
 import { Local } from "../models/Local";
+import { LoginCidadao } from "../models/LoginCidadao";
 import { LoginUsuario } from "../models/LoginUsuario";
 import { Monitor } from "../models/Monitor";
 import { Requisito } from "../models/Requisito";
@@ -33,6 +35,7 @@ export const AppDataSource = new DataSource({
         Agregador,
         Atendimento,
         AuditoriaInterna,
+        Cidadao,
         Cidade,
         Codigos,
         Conteudo,
@@ -40,6 +43,7 @@ export const AppDataSource = new DataSource({
         Dispositivo,
         Guiche,
         Local,
+        LoginCidadao,
         LoginUsuario,
         Monitor,
         Requisito,
@@ -66,6 +70,6 @@ export const testConnection = async () => {
 };
 
 /**
- * @lastModified 2025-03-18 00:24:23
+ * @lastModified 2025-03-18 00:27:49
  * @modifiedBy nosfcj
  */
