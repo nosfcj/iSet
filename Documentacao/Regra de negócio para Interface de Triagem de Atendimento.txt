@@ -39,6 +39,8 @@
 
 	1.13. Atendente faz logoff, ao final do expediente.
 
+* Sistema deve manter o processamento e as informações pertinentes ao atendimento da triagem no lado do cliente e salvar no banco de dados apenas quando o atendimento for finalizado, poupando ao máximo tráfego na rede e requisições excessivas à API e ao banco de dados;
+
 * Atendente pode mudar o status de disponibilidade do atendimento a qualquer momento;
 	* Quando o atendente suspender atendimento, a interface ficará travada. Se outro usuário fizer login, será alertado que o atendente anterior, que suspendeu atendimento, terá que digitar sua senha, ou um supervisor digitar usuário e senha, para destravar a interface e liberar o guichê;
 	* Se estiver em atendimento suspenso em qualquer outro guichê, que não o que o atendente estava, a interface atual alerta a situação e pergunta se o mesmo quer assumir a interface e desocupar a anterior.
