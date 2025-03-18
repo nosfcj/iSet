@@ -57,7 +57,7 @@ export const AppDataSource = new DataSource({
         Unidade,
         Usuario
     ],
-    migrations: ["../migrations/*.ts"],
+    migrations: ["src/migrations/*.ts"], // Caminho corrigido
     subscribers: []
 });
 
@@ -74,6 +74,6 @@ export const testConnection = async () => {
 };
 
 /**
- * @lastModified 2025-03-18 00:38:19
+ * @lastModified 2025-03-18 01:02:18
  * @modifiedBy nosfcj
  */
