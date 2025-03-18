@@ -1,0 +1,46 @@
+﻿
+1. Regra de negócio para Interface de Triagem de Atendimento... 
+
+	1.1. Atendente faz Login Seguro Geral para acessar 'Interface de Triagem de Atendimento'; 
+	1.2. Sistema verifica qual o local, agregadores e subagregadores (se houver), referente ao dispositivo que está fazendo login para oferecer serviços dos órgãos disponíveis para o Balcão de Triagem de Atendimento em questão, que pertence a um local como guichê;
+		1.2.1. Sistema verifica se há alterações nos serviços disponíveis para atendimento no guichê de triagem. 
+		1.2.2. Se houver, carrega lista atualizada de serviços disponíveis ao guichê  e guarda-os em cachê, enquanto carrega a interface (async), para evitar lentidão no atendimento;
+			1.2.2.1. Sistema gera log na Auditoria (uG-004);
+			1.2.2.2. Sistema carrega no dispositivo, a tela inicial da  'Interface de Triagem de Atendimento'; 
+	1.3. Interface é iniciada. Sistema verifica se disponibilidade do guichê:
+		1.3.1. Se estiver Em Atendimento, usuário que logou assume o atendimento;
+		1.3.2. Atendimento Suspenso, sistema trava, informando que somente o usuário anterior poderá acessar aquela interface, ou destravar com login de um supervisor;
+		1.3.3. Sistema deixa disponibilidade do guichê como Aguardando Atendimento;
+	1.4. Atendente escolhe um órgão permitido Guichê de Triagem de Serviços solicitante oferecer;
+		1.4.1. Quando o órgão desejado não estiver disponível e se houver órgãos distribuídos em subagregados e o órgão não estiver disponibilizado àquele guichê/interface, será oferecido, ao invés de serviços para continuar o atendimento, os locais de triagem de subagregados daquele agregador a qual aquele guichê/interface pertence, para que o atendimento continue na próxima triagem, mantendo a responsabilidade dos serviços divididos apenas ao que foi permitido;
+	1.5. Sistema carrega os serviços do órgão solicitado e os oferece ao Atendente;
+		1.5.1. Se o atendente estiver com dúvidas sobre os pré-requisitos e informações do serviço solicitado, atendente pode pedir ao sistema que carregue o Conteúdo do Serviço e seus requisitos para exibição ao atendente;
+
+	1.6. Atendente escolhe serviço do órgão;
+		1.6.1. Sistema gera uma Fila de Atendimento de Serviços no cache, para atendimento no Guichê de Atendimento de Serviços;
+		1.6.2. Atendente pode pôr mais serviços de um ou mais órgãos diferentes, permitidos àquele Guichê de Triagem de Serviços oferecer ao atendente, na Fila de Atendimento de Serviços solicitado; 
+	1.7. Atendente define se há alguma Prioridade de Atendimento de Serviços; 
+	1.8. Atendente insere CPF para cadastro de cidadão;
+		1.8.1. Sistema busca algum cadastro de CPF de cidadão registrado;
+			1.8.1.1. Havendo cadastro, sistema carrega dados para finalização de triagem;
+			1.8.1.2. Não havendo, atendente preenche Nome do Cidadão e Data de Nascimento; 
+			1.8.1.3. Cidadão irá inserir a senha no primeiro acesso no celular, quando quiser usar um acesso para ter mais informações e acompanhar o atendimento;
+	1.9. Atendente confirma atendimento;
+		1.9.1. Dispositivo envia todas as informações colhidas para o sistema;
+		1.9.2. Sistema põe atendimento na fila (websocket) para ser atendido; 
+		1.9.3. Idade do Cidadão irá definir mais celeridade no atendimento, no caso de prioridade 1 – quanto mais velho, mais rápido será atendido;
+	1.10. Sistema grava no banco de dados as informações; 
+	1.11. Atendente imprime uma senha para o Cidadão;
+		1.11.1. Se houver falha na impressão, avisa atendente e gera log na Auditoria (fI-001);
+	1.12. Atendente finaliza atendimento na interface; 
+		1.12.1. Sistema gera log na Auditoria (aT-001);
+		1.12.2. Sistema deixa disponibilidade do guichê como Aguardando Atendimento;
+		1.12.3. Sistema retorna à tela inicial da  'Interface de Triagem de Atendimento'.
+
+	1.13. Atendente faz logoff, ao final do expediente.
+
+* Atendente pode mudar o status de disponibilidade do atendimento a qualquer momento;
+	* Quando o atendente suspender atendimento, a interface ficará travada. Se outro usuário fizer login, será alertado que o atendente anterior, que suspendeu atendimento, terá que digitar sua senha, ou um supervisor digitar usuário e senha, para destravar a interface e liberar o guichê;
+	* Se estiver em atendimento suspenso em qualquer outro guichê, que não o que o atendente estava, a interface atual alerta a situação e pergunta se o mesmo quer assumir a interface e desocupar a anterior.
+	* Ao mudar o status de atendimento quando logar em outro guichê, a interface anterior mudará de status para “Aguardando Atendimento”, liberando o destravamento.
+  
