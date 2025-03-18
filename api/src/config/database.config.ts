@@ -12,6 +12,8 @@ import { Guiche } from "../models/Guiche";
 import { Local } from "../models/Local";
 import { Monitor } from "../models/Monitor";
 import { Unidade } from "../models/Unidade";
+import { Requisito } from "../models/Requisito";
+import { Rotulo } from "../models/Rotulo";
 import { Servico } from "../models/Servico";
 import { SubAgregador } from "../models/SubAgregador";
 import { Usuario } from "../models/Usuario";
@@ -38,9 +40,11 @@ export const AppDataSource = new DataSource({
         Guiche,
         Local,
         Monitor,
-        Unidade,
+        Requisito,
+        Rotulo,
         Servico,
         SubAgregador,
+        Unidade,
         Usuario
     ],
     migrations: ["../migrations/*.ts"],
@@ -60,6 +64,6 @@ export const testConnection = async () => {
 };
 
 /**
- * @lastModified 2025-03-18 00:01:05
+ * @lastModified 2025-03-18 00:20:22
  * @modifiedBy nosfcj
  */
