@@ -1,57 +1,107 @@
+/**
+ * Guiche Entity
+ * @file api/src/models/Guiche.ts
+ * @lastModified 2025-03-18 19:04:59
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os guichês de atendimento e sua disponibilidade
+ */
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Local } from './Local';
 import { Usuario } from './Usuario';
 import { Acao } from './Acao';
 import { Direcionamento } from './Direcionamento';
 
+/**
+ * Enum para status do guichê
+ */
+export enum GuicheStatus {
+  OFFLINE = 0,
+  ONLINE = 1
+}
+
+/**
+ * Enum para disponibilidade do guichê
+ */
+export enum GuicheDisponibilidade {
+  FORA_ATENDIMENTO = 0,
+  AGUARDANDO_ATENDIMENTO = 1,
+  EM_ATENDIMENTO = 2,
+  ATENDIMENTO_SUSPENSO = 3
+}
+
 @Entity({ 
   name: 'Guiche',
-  comment: 'Esta tabela contem informações dos guichês, usuários que estão a utilizar e sua disponibilidade em relação aos atendimentos dos serviços.'
+  comment: 'Contém informações dos guichês, usuários e disponibilidade para atendimentos'
 })
 export class Guiche {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int',
+    comment: 'Identificador único do guichê'
+  })
   id!: number;
 
   @Column({
+    name: 'status',
     type: 'tinyint',
-    default: 1,
+    default: GuicheStatus.ONLINE,
     nullable: false,
-    comment: 'Status que define o status do guichê: 0 - offline; 1 - online.'
+    comment: 'Status do guichê: 0-offline, 1-online',
+    enum: GuicheStatus
   })
-  status!: number;
+  status!: GuicheStatus;
 
   @Column({
+    name: 'identificacao',
     type: 'int',
     width: 3,
     zerofill: true,
     nullable: false,
-    comment: 'Define o numero do guichê disponivel no local de atendimento.'
+    comment: 'Número do guichê no local de atendimento'
   })
   identificacao!: number;
 
   @Column({
+    name: 'disponibilidade',
     type: 'int',
-    default: 0,
+    default: GuicheDisponibilidade.FORA_ATENDIMENTO,
     nullable: false,
-    comment: 'Define situação de atividade, vindos de WebSocket, do atendimento de guiches: 0 - fora de atendimento, 1 - aguardando atendimento, 2 - em atendimento, 3 - atendimento suspenso'
+    comment: 'Situação do guichê via WebSocket: 0-fora, 1-aguardando, 2-em atendimento, 3-suspenso',
+    enum: GuicheDisponibilidade
   })
-  disponibilidade!: number;
+  disponibilidade!: GuicheDisponibilidade;
+
+  @Column({
+    name: 'Local_ID',
+    type: 'int',
+    nullable: false,
+    comment: 'ID do local onde este guichê está localizado'
+  })
+  localId!: number;
+
+  @Column({
+    name: 'Usuario_ID',
+    type: 'int',
+    nullable: true,
+    comment: 'ID do usuário que está utilizando este guichê'
+  })
+  usuarioId!: number | null;
 
   // Relação com Local (obrigatória)
-  @ManyToOne(() => Local, (local) => local.guiches)
+  @ManyToOne(() => Local, (local: Local) => local.guiches)
   @JoinColumn({ name: 'Local_ID' })
   local!: Local;
 
   // Relação com Usuario (opcional)
-  @ManyToOne(() => Usuario, (usuario) => usuario.guiches)
+  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.guiches)
   @JoinColumn({ name: 'Usuario_ID' })
   usuario!: Usuario | null;
 
   // Relação com Acao
-  @OneToMany(() => Acao, (acao) => acao.guiche)
+  @OneToMany(() => Acao, (acao: Acao) => acao.guiche)
   acoes!: Acao[];
 
   // Relação com Direcionamento
-  @OneToMany(() => Direcionamento, (direcionamento) => direcionamento.guiche)
+  @OneToMany(() => Direcionamento, (direcionamento: Direcionamento) => direcionamento.guiche)
   direcionamentos!: Direcionamento[];
 }
