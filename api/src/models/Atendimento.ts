@@ -5,7 +5,10 @@ import { Local } from './Local';
 import { Acao } from './Acao';
 import { Avaliacao } from './Avaliacao';
 
-@Entity({ name: 'Atendimento' })
+@Entity({ 
+  name: 'Atendimento',
+  comment: 'Essa tabela contém informações de um atendimento gerado para oferecer um ou mais serviços ao cidadão. Pode ser inserido por um atendente de triagem ou cidadão pelo app do Protocolo Cidadão.'
+})
 export class Atendimento {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
@@ -13,35 +16,39 @@ export class Atendimento {
   @Column({
     type: 'int',
     default: 0,
-    comment: 'Status: 0-Não finalizado, 1-Em atendimento, 2-Finalizado, 3-Aguardando retorno',
+    nullable: false,
+    comment: 'Status do atendimento que define o estado do atendimento dos serviços: 0 - Não finalizado, 1 - em atendimento, 2 - finalizado, 3 - aguardando retorno de atendimento adiado para outra data.'
   })
   status!: number;
 
   @Column({
     type: 'int',
     nullable: false,
-    comment: 'Tipo: 0-Comum, 1-Prioridade, 2-Retorno, 3-Retorno com prioridade',
+    comment: 'Define qual a prioridade na fila do atendimento. 0 - comum, 1 - prioridade, 2 - retorno. Quanto maior for o tipo, maior celeridade no atendimento. Quanto mais velho for o cidadão marcado como status 1, maior prioridade na fila de atendimento do tipo 1.'
   })
   tipo!: number;
 
   @Column({
-    length: 9,
+    type: 'varchar',
+    length: 11,
     nullable: false,
-    comment: 'Senha no formato "LLL-000"',
+    comment: 'Senha do atendimento, no formato \'LLLLL-NNNNN\', onde a letras (llll) serão coletadas no nome do serviço e a numero relativo à ordem de cadastro de atendimento na fila.'
   })
   senha!: string;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
-    comment: 'Data de cadastro do atendimento',
+    nullable: false,
+    comment: 'Data em que o atendimento foi solicitado.'
   })
   dataCadastro!: Date;
 
   @Column({
     type: 'timestamp',
     nullable: true,
-    comment: 'Data de conclusão/finalização',
+    default: null,
+    comment: 'Data em que o serviço foi finalizado.'
   })
   dataFinal!: Date | null;
 
@@ -51,12 +58,12 @@ export class Atendimento {
   cidadao!: Cidadao;
 
   // Relação com Usuario (opcional)
-  @ManyToOne(() => Usuario, (usuario) => usuario.atendimentos, { nullable: true })
+  @ManyToOne(() => Usuario, (usuario) => usuario.atendimentos)
   @JoinColumn({ name: 'Usuario_ID' })
   usuario!: Usuario | null;
 
   // Relação com Local (opcional)
-  @ManyToOne(() => Local, (local) => local.atendimentos, { nullable: true })
+  @ManyToOne(() => Local, (local) => local.atendimentos)
   @JoinColumn({ name: 'Local_ID' })
   local!: Local | null;
 

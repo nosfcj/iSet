@@ -1,82 +1,65 @@
-import "dotenv/config"; // Deve ser o primeiro import
-import "reflect-metadata";
-import { DataSource, DataSourceOptions } from "typeorm";
-import { join } from "path";
-import "dotenv/config";
+import { DataSource } from "typeorm";
+import { Acao } from "../models/Acao";
+import { Agregador } from "../models/Agregador";
+import { Atendimento } from "../models/Atendimento";
+import { AuditoriaInterna } from "../models/AuditoriaInterna";
+import { Cidade } from "../models/Cidade";
+import { Codigos } from "../models/Codigos";
+import { Conteudo } from "../models/Conteudo";
+import { Direcionamento } from "../models/Direcionamento";
+import { Dispositivo } from "../models/Dispositivo";
+import { Guiche } from "../models/Guiche";
+import { Local } from "../models/Local";
+import { Monitor } from "../models/Monitor";
+import { Unidade } from "../models/Unidade";
+import { Servico } from "../models/Servico";
+import { SubAgregador } from "../models/SubAgregador";
+import { Usuario } from "../models/Usuario";
 
-// Adicione este log para debug
-console.log('Variáveis de ambiente:', {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    database: process.env.DB_NAME
-  });
+export const AppDataSource = new DataSource({
+    type: "mysql",
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "3306"),
+    username: process.env.DB_USER || "root",
+    password: process.env.DB_PASS || "UltraDMA",
+    database: process.env.DB_NAME || "iSet",
+    synchronize: false,
+    logging: false,
+    entities: [
+        Acao,
+        Agregador,
+        Atendimento,
+        AuditoriaInterna,
+        Cidade,
+        Codigos,
+        Conteudo,
+        Direcionamento,
+        Dispositivo,
+        Guiche,
+        Local,
+        Monitor,
+        Unidade,
+        Servico,
+        SubAgregador,
+        Usuario
+    ],
+    migrations: ["../migrations/*.ts"],
+    subscribers: []
+});
 
-// Interface para validação das variáveis de ambiente
-interface DbEnvConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  database: string;
-  charset?: string;
-}
-
-// Função para validar variáveis de ambiente
-const validateDbConfig = (): DbEnvConfig => {
-  const config = {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    charset: process.env.DB_CHARSET
-  };
-
-  // Validação básica das variáveis obrigatórias
-  const requiredFields: (keyof DbEnvConfig)[] = ['host', 'port', 'username', 'password', 'database'];
-  for (const field of requiredFields) {
-    if (!config[field]) {
-      throw new Error(`Configuração do banco de dados inválida: ${field} não definido`);
-    }
-  }
-
-  return config as DbEnvConfig;
-};
-
-// Configuração do DataSource
-const dbConfig = validateDbConfig();
-
-const dataSourceOptions: DataSourceOptions = {
-  type: "mysql",
-  host: dbConfig.host,
-  port: dbConfig.port,
-  username: dbConfig.username,
-  password: dbConfig.password,
-  database: dbConfig.database,
-  charset: dbConfig.charset,
-  synchronize: false, // Sempre false em produção - usando migrations
-  logging: process.env.NODE_ENV !== 'production', // Log apenas em desenvolvimento
-  entities: [join(__dirname, "..", "models", "*.{ts,js}")],
-  migrations: [join(__dirname, "..", "migrations", "*.{ts,js}")],
-  // Configurações adicionais de performance
-  extra: {
-    connectionLimit: 10,
-    maxPoolSize: 20,
-  }
-};
-
-// Exporta a instância do DataSource
-export const AppDataSource = new DataSource(dataSourceOptions);
-
-// Exporta função de teste de conexão
+// Função para testar a conexão com o banco de dados
 export const testConnection = async () => {
-  try {
-    await AppDataSource.initialize();
-    console.log("✅ Conexão com banco de dados estabelecida com sucesso");
-    return true;
-  } catch (error) {
-    console.error("❌ Erro ao conectar com banco de dados:", error);
-    return false;
-  }
+    try {
+        await AppDataSource.initialize();
+        console.log("✅ Conexão com o banco de dados estabelecida com sucesso!");
+        return true;
+    } catch (error) {
+        console.error("❌ Erro ao conectar ao banco de dados:", error);
+        return false;
+    }
 };
+
+/**
+ * @lastModified 2025-03-18 00:01:05
+ * @modifiedBy nosfcj
+ */

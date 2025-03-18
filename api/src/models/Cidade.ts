@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Local } from './Local';
 
-@Entity({ name: 'Cidade', comment: 'Cidades e estados cadastrados' })
+@Entity({ name: 'Cidade' })
 export class Cidade {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
@@ -9,14 +9,15 @@ export class Cidade {
   @Column({
     type: 'tinyint',
     default: 1,
-    comment: 'Status: 0 - inativo, 1 - ativo',
+    nullable: false,
+    comment: 'Status que define a cidade no sistema: 0 - inativo, 1 ativo.',
   })
   status!: number;
 
   @Column({
     type: 'text',
     nullable: false,
-    comment: 'Nome da cidade',
+    comment: 'Nome da cidade.',
   })
   nome!: string;
 
@@ -24,11 +25,11 @@ export class Cidade {
     type: 'text',
     name: 'Estado',
     nullable: false,
-    comment: 'Nome do estado',
+    comment: 'Nome do estado.',
   })
   estado!: string;
 
-  // Relação com Local (OneToMany)
+  // Relação com Local
   @OneToMany(() => Local, (local) => local.cidade)
   locais!: Local[];
 }

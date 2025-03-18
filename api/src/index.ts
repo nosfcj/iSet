@@ -1,5 +1,5 @@
 import { app, PORT } from "./config/server";
-import { AppDataSource, testConnection } from "./config/database.config"; // Nova importação
+import { testConnection } from "./config/database.config";
 
 // Inicializa a conexão com o banco de dados e inicia o servidor
 testConnection()
@@ -16,3 +16,8 @@ testConnection()
     console.error("❌ Erro fatal ao inicializar aplicação:", error);
     process.exit(1);
   });
+
+/**
+ * @lastModified 2025-03-18 00:01:05
+ * @modifiedBy nosfcj
+ */

@@ -1,14 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
-import { Orgao } from './Orgao';
+import { Unidade } from './Unidade';
 import { Atendimento } from './Atendimento';
 import { Guiche } from './Guiche';
 import { LoginUsuario } from './LoginUsuario';
-import { Auditoria } from './Auditoria';
+import { AuditoriaInterna } from './AuditoriaInterna';
 import { Dispositivo } from './Dispositivo';
 import { Monitor } from './Monitor';
-import { Acao } from './Acao'; // Adicione esta linha
+import { Acao } from './Acao';
 
-@Entity({ name: 'Usuario' })
+@Entity({ 
+  name: 'Usuario',
+  comment: 'Essa tabela é referente aos dados dos usuários que participam da gestão de informação e atendimento.'
+})
 export class Usuario {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
@@ -16,35 +19,30 @@ export class Usuario {
   @Column({
     type: 'tinyint',
     default: 1,
-    comment: 'Status: 0 - inativo, 1 - ativo',
+    nullable: false,
+    comment: 'Define status: 0 - inativo, 1 - ativo\n'
   })
   status!: number;
 
   @Column({
-    type: 'tinyint',
-    default: 1,
-    comment: 'Disponibilidade: 0 - indisponível, 1 - disponível',
-  })
-  disponibilidade!: number;
-
-  @Column({
     type: 'int',
     nullable: false,
-    comment: 'Nível de acesso (0-4). 0 = Administrador',
+    comment: 'Define o nivel de acesso do usuário do sistema: 0 - administrador, 1 - atendente de serviços, 2 - editor de serviços na carta, 3 - supervisor de atendimento, 4 - gestor do sistema. Iniciando do atendente, a ordem crescente herda o nível do anterior. o Administrador é o único que herda todos e faz registro de usuários do sistema. Demais funções, vide documentação. '
   })
   nivel!: number;
 
   @Column({
+    type: 'varchar',
     length: 45,
     nullable: false,
-    comment: 'Nome real do usuário',
+    comment: 'Nome real do usuário do sistema'
   })
   nome!: string;
 
-  // Relação com Orgao
-  @ManyToOne(() => Orgao, (orgao) => orgao.usuarios)
-  @JoinColumn({ name: 'Orgao_ID' })
-  orgao!: Orgao;
+  // Relação com Unidade
+  @ManyToOne(() => Unidade, (unidade) => unidade.usuarios)
+  @JoinColumn({ name: 'Unidade_ID' })
+  unidade!: Unidade | null;
 
   // Relação com Atendimento
   @OneToMany(() => Atendimento, (atendimento) => atendimento.usuario)
@@ -55,8 +53,8 @@ export class Usuario {
   guiches!: Guiche[];
 
   // Relação com Auditoria
-  @OneToMany(() => Auditoria, (auditoria) => auditoria.usuario)
-  auditorias!: Auditoria[];
+  @OneToMany(() => AuditoriaInterna, (AuditoriaInterna) => AuditoriaInterna.usuario)
+  AuditoriasInternas!: AuditoriaInterna[];
 
   // Relação com Dispositivo
   @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.usuario)
@@ -70,8 +68,7 @@ export class Usuario {
   @OneToOne(() => LoginUsuario, (login) => login.usuario)
   login!: LoginUsuario;
 
-  // Relação com Acao (OneToMany)
+  // Relação com Acao
   @OneToMany(() => Acao, (acao) => acao.usuario)
-  acoes!: Acao[]; // Propriedade faltante
-
+  acoes!: Acao[];
 }

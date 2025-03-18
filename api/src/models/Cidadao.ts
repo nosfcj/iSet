@@ -3,7 +3,10 @@ import { Atendimento } from './Atendimento';
 import { LoginCidadao } from './LoginCidadao';
 import { Dispositivo } from './Dispositivo';
 
-@Entity({ name: 'Cidadao' })
+@Entity({ 
+  name: 'Cidadao',
+  comment: 'Essa tabela contém informações sobre o cidadão que procura atendimento de algum órgão.'
+})
 export class Cidadao {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
@@ -11,49 +14,36 @@ export class Cidadao {
   @Column({
     type: 'text',
     nullable: false,
-    comment: 'Nome do cidadão',
+    comment: 'Nome do cidadão.'
   })
   nome!: string;
 
   @Column({
-    type: 'tinyint',
-    default: 1,
-    comment: 'Status: 0 - inativo, 1 - ativo',
-  })
-  status!: number;
-
-  @Column({
     type: 'text',
     nullable: true,
-    comment: 'Cidade de residência',
+    comment: 'Cidade em que o cidadão mora.'
   })
   cidade!: string | null;
 
   @Column({
     type: 'text',
     nullable: true,
-    comment: 'Telefones (separados por ";")',
+    comment: 'Telefone usado pelo cidadão, podendo ter vários, separados por ponto e virgula. Telefones com * no início estarão disponíveis no WhatsApp.'
   })
   telefone!: string | null;
 
   @Column({
     type: 'text',
     nullable: true,
+    comment: 'Email do cidadão.'
   })
   email!: string | null;
 
   @Column({
-    type: 'text',
-    name: 'Auth0',
-    nullable: true,
-    comment: 'Dados de autenticação externa (JSON)',
-  })
-  auth0!: string | null;
-
-  @Column({
     type: 'timestamp',
+    nullable: false,
     default: () => 'CURRENT_TIMESTAMP',
-    comment: 'Data/hora do cadastro',
+    comment: 'Data e hora em que o cidadão foi cadastrado no sistema.'
   })
   dataHoraCadastro!: Date;
 
@@ -61,24 +51,24 @@ export class Cidadao {
     type: 'int',
     width: 1,
     nullable: true,
-    comment: 'Prioridade: NULL - sem, 1 - idoso, 2 - patologia',
+    comment: 'Define a prioridade definitiva do cidadão: NULL - sem prioridade, 1 - idoso, 2 - patologia.'
   })
   prioridade!: number | null;
 
   @Column({
     type: 'date',
     nullable: true,
-    comment: 'Data de nascimento (opcional)',
+    comment: 'Data de nascimento é opcional. Mas sua ausência não dará a prerrogativa da idade no caso de senha prioritária.'
   })
   dataNascimento!: Date | null;
 
   @Column({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-    comment: 'Último acesso ao sistema',
+    name: 'UltimoAcesso',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP'
   })
-  ultimoAcesso!: Date;
+  ultimoAcesso!: Date | null;
 
   // Relação com Atendimento
   @OneToMany(() => Atendimento, (atendimento) => atendimento.cidadao)
@@ -92,7 +82,7 @@ export class Cidadao {
   @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.cidadao)
   dispositivos!: Dispositivo[];
 
+  // Relação com LoginCidadao (OneToOne)
   @OneToOne(() => LoginCidadao, (login) => login.cidadao)
   login!: LoginCidadao;
-
 }

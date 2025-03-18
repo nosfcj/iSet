@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Orgao } from './Orgao';
+import { Unidade } from './Unidade';
 import { Conteudo } from './Conteudo';
 import { Direcionamento } from './Direcionamento';
-import { Acao } from './Acao'; // Adicione esta importação
+import { Acao } from './Acao';
 
 @Entity({ name: 'Servico' })
 export class Servico {
@@ -12,7 +12,7 @@ export class Servico {
   @Column({
     type: 'tinyint',
     nullable: false,
-    comment: 'Status: 0 - desativado, 1 - disponível',
+    comment: 'Define status do serviço: 0 - desativado, 1 - disponível',
   })
   status!: number;
 
@@ -24,21 +24,19 @@ export class Servico {
   titulo!: string;
 
   @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-    comment: 'Última atualização relevante para o cache de serviços (mudanças de status, conteúdo, requisitos)',
-    name: 'ultimaAtualizacao'
+    length: 5,
+    nullable: true,
+    unique: true,
+    comment: 'Rótulo, no formato \'LLLLL\', que irá compor a identificação da senha no ticket.',
   })
-  ultimaAtualizacao!: Date;
+  rotulo!: string;
 
-  // Adicione esta nova relação com Acao
+  @ManyToOne(() => Unidade, (unidade) => unidade.servicos)
+  @JoinColumn({ name: 'Unidade_ID' })
+  unidade!: Unidade;
+
   @OneToMany(() => Acao, (acao) => acao.servico)
   acoes!: Acao[];
-
-  @ManyToOne(() => Orgao, (orgao) => orgao.servicos)
-  @JoinColumn({ name: 'Orgao_ID' })
-  orgao!: Orgao;
 
   @OneToMany(() => Conteudo, (conteudo) => conteudo.servico)
   conteudos!: Conteudo[];

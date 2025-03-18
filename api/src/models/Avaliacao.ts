@@ -1,27 +1,35 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Atendimento } from './Atendimento';
 
-@Entity({ name: 'Avaliacao', comment: 'Avaliações dos cidadãos sobre atendimentos' })
+@Entity({ 
+  name: 'Avaliacao',
+  comment: 'Essa tabela contém informações sobre a avaliação que o cidadão faz ao atendimento oferecido.'
+})
 export class Avaliacao {
-  @PrimaryColumn({ name: 'Atendimento_ID' })
-  atendimentoId!: number; // PK compartilhada com Atendimento
+  @PrimaryColumn({ 
+    name: 'Atendimento_ID',
+    comment: 'Esse ID se refere ao atendimento dos serviços'
+  })
+  atendimentoId!: number;
 
   @Column({
     type: 'int',
     width: 1,
     nullable: false,
-    comment: 'Avaliação em estrelas: 1 (péssimo) a 5 (perfeito)',
+    name: 'avaliacao',
+    comment: 'As estrelas se refere a avaliação do atendimento através de estrelas: 1 - péssimo , 2 - ruim , 3 - razoável,  4 - ótimo, 5 - perfeito.'
   })
-  estrelas!: number;
+  avaliacao!: number;
 
   @Column({
     type: 'text',
     nullable: true,
-    comment: 'Comentário opcional do cidadão',
+    default: null,
+    comment: 'Comentário, opcional, exclusivo do cidadão'
   })
   comentario!: string | null;
 
-  // Relação OneToOne com Atendimento (bidirecional)
+  // Relação OneToOne com Atendimento
   @OneToOne(() => Atendimento, (atendimento) => atendimento.avaliacao)
   @JoinColumn({ name: 'Atendimento_ID' })
   atendimento!: Atendimento;

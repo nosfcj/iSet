@@ -4,7 +4,10 @@ import { Usuario } from './Usuario';
 import { Acao } from './Acao';
 import { Direcionamento } from './Direcionamento';
 
-@Entity({ name: 'Guiche', comment: 'Guichês de atendimento disponíveis' })
+@Entity({ 
+  name: 'Guiche',
+  comment: 'Esta tabela contem informações dos guichês, usuários que estão a utilizar e sua disponibilidade em relação aos atendimentos dos serviços.'
+})
 export class Guiche {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
@@ -12,41 +15,43 @@ export class Guiche {
   @Column({
     type: 'tinyint',
     default: 1,
-    comment: 'Status: 0 - indisponível, 1 - disponível',
+    nullable: false,
+    comment: 'Status que define o status do guichê: 0 - offline; 1 - online.'
   })
   status!: number;
 
   @Column({
     type: 'int',
-    unsigned: true,
     width: 3,
     zerofill: true,
-    comment: 'Número do guichê (3 dígitos zerofill)',
+    nullable: false,
+    comment: 'Define o numero do guichê disponivel no local de atendimento.'
   })
   identificacao!: number;
 
   @Column({
     type: 'int',
     default: 0,
-    comment: 'Disponibilidade: 0 - fora, 1 - aguardando, 2 - atendendo, 3 - suspenso',
+    nullable: false,
+    comment: 'Define situação de atividade, vindos de WebSocket, do atendimento de guiches: 0 - fora de atendimento, 1 - aguardando atendimento, 2 - em atendimento, 3 - atendimento suspenso'
   })
   disponibilidade!: number;
 
   // Relação com Local (obrigatória)
-  @ManyToOne(() => Local, (local) => local.guiches, { nullable: false })
+  @ManyToOne(() => Local, (local) => local.guiches)
   @JoinColumn({ name: 'Local_ID' })
   local!: Local;
 
-  // Relação com Usuario (obrigatória)
-  @ManyToOne(() => Usuario, (usuario) => usuario.guiches, { nullable: false })
+  // Relação com Usuario (opcional)
+  @ManyToOne(() => Usuario, (usuario) => usuario.guiches)
   @JoinColumn({ name: 'Usuario_ID' })
-  usuario!: Usuario;
+  usuario!: Usuario | null;
 
-  // Relação com Acao (OneToMany)
+  // Relação com Acao
   @OneToMany(() => Acao, (acao) => acao.guiche)
   acoes!: Acao[];
 
-  // Relação com Direcionamento (OneToMany - adicionada)
+  // Relação com Direcionamento
   @OneToMany(() => Direcionamento, (direcionamento) => direcionamento.guiche)
   direcionamentos!: Direcionamento[];
 }

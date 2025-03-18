@@ -1,44 +1,59 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Guiche } from './Guiche';
 import { Servico } from './Servico';
 
 @Entity({ 
   name: 'Direcionamento',
-  comment: 'Direcionamento de serviços para guichês' 
+  comment: 'Tabela que agrega os serviços que podem ser chamados por um guichê'
 })
 export class Direcionamento {
-  @PrimaryColumn({ name: 'ID' })
-  id!: number; // Não é AUTO_INCREMENT no SQL, então usamos @PrimaryColumn
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int' 
+  })
+  id!: number;
 
   @Column({
+    name: 'status',
     type: 'tinyint',
+    nullable: false,
     default: 1,
-    comment: 'Status: 0 - indisponível, 1 - disponível',
+    comment: 'Status que define disposição: 0 - indisponível, 1 disponível.'
   })
   status!: number;
 
   @Column({
+    name: 'tipo',
     type: 'int',
+    nullable: false,
     default: 1,
-    comment: 'Tipo: 1 - triagem, 2 - atendimento',
+    comment: 'Define tipo de guichê: 1 - triagem, 2 - atendimento'
   })
   tipo!: number;
 
   @Column({
-    length: 4,
+    name: 'Guiche_ID',
+    type: 'int',
     nullable: false,
-    comment: 'Rótulo do direcionamento (ex: "TRI-")',
+    comment: 'A que guichê estas informações pertencem.'
   })
-  rotulo!: string;
+  guicheId!: number;
+
+  @Column({
+    name: 'Servico_ID',
+    type: 'int',
+    nullable: false,
+    comment: 'Que serviço este guichê pode chamar.'
+  })
+  servicoId!: number;
 
   // Relação com Guiche (obrigatória)
-  @ManyToOne(() => Guiche, (guiche) => guiche.direcionamentos, { nullable: false })
+  @ManyToOne(() => Guiche)
   @JoinColumn({ name: 'Guiche_ID' })
   guiche!: Guiche;
 
   // Relação com Servico (obrigatória)
-  @ManyToOne(() => Servico, (servico) => servico.direcionamentos, { nullable: false })
+  @ManyToOne(() => Servico)
   @JoinColumn({ name: 'Servico_ID' })
   servico!: Servico;
-
 }
