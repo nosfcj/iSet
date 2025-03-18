@@ -1,41 +1,69 @@
+/**
+ * Dispositivo Entity
+ * @file api/src/models/Dispositivo.ts
+ * @lastModified 2025-03-18 19:27:38
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os dispositivos autorizados a acessar o sistema
+ */
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Usuario } from './Usuario';
 import { Cidadao } from './Cidadao';
 import { Monitor } from './Monitor';
 
+/**
+ * Enum para status do dispositivo
+ */
+export enum DispositivoStatus {
+  INATIVO = 0,
+  ATIVO = 1
+}
+
+/**
+ * Enum para tipo do dispositivo
+ */
+export enum DispositivoTipo {
+  WEB = 1,
+  DESKTOP = 2,
+  PORTATIL = 3
+}
 
 @Entity({ 
   name: 'Dispositivo',
-  comment: 'Contém as informações dos dispositivos com permição de acessar dados no sistema. Apenas Supervisores, Gestores e Administradores tem permissão de cadastro de dispositivos web/desktop. Cidadão só tem permissão para cadastrar dispositivos Portáteis.'
+  comment: 'Contém informações dos dispositivos autorizados a acessar o sistema. Apenas Supervisores, Gestores e Administradores podem cadastrar dispositivos web/desktop.'
 })
 export class Dispositivo {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int',
+    comment: 'Identificador único do dispositivo'
+  })
   id!: number;
 
   @Column({
     name: 'status',
     type: 'tinyint',
     nullable: false,
-    default: 1,
-    comment: 'Status que define estado do dispositivo no sistema: 0 - inativo, 1 - ativo.'
+    default: DispositivoStatus.ATIVO,
+    comment: 'Status: 0-inativo, 1-ativo',
+    enum: DispositivoStatus
   })
-  status!: number;
+  status!: DispositivoStatus;
 
   @Column({
     name: 'tipo',
     type: 'int',
-    width: 1,
     nullable: false,
-    comment: 'O tipo define qual o tipo de dispositivo está permitido acessar o sistema: 1 - Web, 2 - Desktop, 3 - Portátil.'
+    comment: 'Tipo: 1-Web, 2-Desktop, 3-Portátil',
+    enum: DispositivoTipo
   })
-  tipo!: number;
+  tipo!: DispositivoTipo;
 
   @Column({
     name: 'chave',
     type: 'varchar',
     length: 45,
     nullable: false,
-    comment: 'Chave em hash, que define navegador permitido para acessar o sistema.'
+    comment: 'Hash que identifica o navegador/dispositivo autorizado'
   })
   chave!: string;
 
@@ -45,7 +73,7 @@ export class Dispositivo {
     length: 45,
     nullable: true,
     default: null,
-    comment: 'Nome que irá apelidar este dispositivo'
+    comment: 'Nome de identificação do dispositivo'
   })
   rotulo!: string | null;
 
@@ -53,7 +81,7 @@ export class Dispositivo {
     name: 'Usuario_ID',
     type: 'int',
     nullable: true,
-    comment: 'Define que usuário que cadastrou o dispositivo web/desktop no sistema.'
+    comment: 'ID do usuário que cadastrou o dispositivo web/desktop'
   })
   usuarioId!: number | null;
 
@@ -61,22 +89,21 @@ export class Dispositivo {
     name: 'Cidadao_ID',
     type: 'int',
     nullable: true,
-    comment: 'Define que cidadão que cadastrou o app portátil no sistema.'
+    comment: 'ID do cidadão que cadastrou o dispositivo portátil'
   })
   cidadaoId!: number | null;
 
   // Relação com Usuario (opcional)
-  @ManyToOne(() => Usuario)
+  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.dispositivos)
   @JoinColumn({ name: 'Usuario_ID' })
   usuario!: Usuario | null;
 
   // Relação com Cidadao (opcional)
-  @ManyToOne(() => Cidadao)
+  @ManyToOne(() => Cidadao, (cidadao: Cidadao) => cidadao.dispositivos)
   @JoinColumn({ name: 'Cidadao_ID' })
   cidadao!: Cidadao | null;
 
-  // Relação inversa com Monitor
-  @OneToOne(() => Monitor, (monitor) => monitor.dispositivo)
+  // Relação inversa com Monitor (opcional)
+  @OneToOne(() => Monitor, (monitor: Monitor) => monitor.dispositivo)
   monitor!: Monitor;
-
 }

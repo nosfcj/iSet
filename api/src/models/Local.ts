@@ -1,7 +1,7 @@
 /**
  * Local Entity
  * @file api/src/models/Local.ts
- * @lastModified 2025-03-18 16:45:09
+ * @lastModified 2025-03-18 20:20:07
  * @modifiedBy nosfcj
  * @description Entidade que representa os locais de atendimento de serviços
  */
@@ -24,7 +24,7 @@ export enum LocalStatus {
 
 @Entity({
   name: 'Local',
-  comment: 'Locais de atendimento de serviços'
+  comment: 'Contém informações dos locais físicos onde são prestados os serviços de atendimento'
 })
 export class Local {
   @PrimaryGeneratedColumn({
@@ -39,14 +39,15 @@ export class Local {
     type: 'tinyint',
     nullable: false,
     default: LocalStatus.ATIVO,
-    comment: 'Status: 0 - desativado, 1 - ativo',
+    comment: 'Status: 0-desativado, 1-ativo',
     enum: LocalStatus
   })
   status!: LocalStatus;
 
   @Column({
     name: 'endereco',
-    type: 'text',
+    type: 'varchar',
+    length: 255,
     nullable: true,
     comment: 'Endereço físico completo do local de atendimento'
   })
@@ -54,7 +55,8 @@ export class Local {
 
   @Column({
     name: 'linkMaps',
-    type: 'text',
+    type: 'varchar',
+    length: 255,
     nullable: true,
     comment: 'Link do Google Maps para localização do estabelecimento'
   })
@@ -110,12 +112,12 @@ export class Local {
   cidadeId!: number;
 
   // Relação com Unidade (anteriormente Orgao)
-  @ManyToOne(() => Unidade, (unidade: Unidade) => unidade.locais)
+  @ManyToOne(() => Unidade, (unidade: Unidade) => unidade.locais, { nullable: false })
   @JoinColumn({ name: 'Orgao_ID' })
   unidade!: Unidade;
 
   // Relação com Agregador
-  @ManyToOne(() => Agregador, (agregador: Agregador) => agregador.locais)
+  @ManyToOne(() => Agregador, (agregador: Agregador) => agregador.locais, { nullable: false })
   @JoinColumn({ name: 'Agregador_ID' })
   agregador!: Agregador;
 
@@ -125,7 +127,7 @@ export class Local {
   subAgregador!: SubAgregador | null;
 
   // Relação com Cidade
-  @ManyToOne(() => Cidade, (cidade: Cidade) => cidade.locais)
+  @ManyToOne(() => Cidade, (cidade: Cidade) => cidade.locais, { nullable: false })
   @JoinColumn({ name: 'Cidade_ID' })
   cidade!: Cidade;
 

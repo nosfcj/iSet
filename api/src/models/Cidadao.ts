@@ -1,88 +1,118 @@
+/**
+ * Cidadao Entity
+ * @file api/src/models/Cidadao.ts
+ * @lastModified 2025-03-18 19:30:12
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os cidadãos que buscam atendimento nos órgãos
+ */
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
 import { Atendimento } from './Atendimento';
 import { LoginCidadao } from './LoginCidadao';
 import { Dispositivo } from './Dispositivo';
 
+/**
+ * Enum para prioridade do cidadão
+ */
+export enum CidadaoPrioridade {
+  IDOSO = 1,
+  PATOLOGIA = 2
+}
+
 @Entity({ 
   name: 'Cidadao',
-  comment: 'Essa tabela contém informações sobre o cidadão que procura atendimento de algum órgão.'
+  comment: 'Contém informações dos cidadãos que buscam atendimento nos órgãos'
 })
 export class Cidadao {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int',
+    comment: 'Identificador único do cidadão'
+  })
   id!: number;
 
   @Column({
-    type: 'text',
+    name: 'nome',
+    type: 'varchar',
+    length: 255,
     nullable: false,
-    comment: 'Nome do cidadão.'
+    comment: 'Nome completo do cidadão'
   })
   nome!: string;
 
   @Column({
-    type: 'text',
+    name: 'cidade',
+    type: 'varchar',
+    length: 100,
     nullable: true,
-    comment: 'Cidade em que o cidadão mora.'
+    comment: 'Cidade de residência do cidadão'
   })
   cidade!: string | null;
 
   @Column({
+    name: 'telefone',
     type: 'text',
     nullable: true,
-    comment: 'Telefone usado pelo cidadão, podendo ter vários, separados por ponto e virgula. Telefones com * no início estarão disponíveis no WhatsApp.'
+    comment: 'Lista de telefones separados por ponto e vírgula (;). Telefones com * no início possuem WhatsApp'
   })
   telefone!: string | null;
 
   @Column({
-    type: 'text',
+    name: 'email',
+    type: 'varchar',
+    length: 255,
     nullable: true,
-    comment: 'Email do cidadão.'
+    comment: 'Endereço de e-mail do cidadão'
   })
   email!: string | null;
 
   @Column({
+    name: 'dataHoraCadastro',
     type: 'timestamp',
     nullable: false,
     default: () => 'CURRENT_TIMESTAMP',
-    comment: 'Data e hora em que o cidadão foi cadastrado no sistema.'
+    comment: 'Data e hora do cadastro do cidadão'
   })
   dataHoraCadastro!: Date;
 
   @Column({
+    name: 'prioridade',
     type: 'int',
-    width: 1,
     nullable: true,
-    comment: 'Define a prioridade definitiva do cidadão: NULL - sem prioridade, 1 - idoso, 2 - patologia.'
+    comment: 'Prioridade: 1-idoso, 2-patologia, null-sem prioridade',
+    enum: CidadaoPrioridade
   })
-  prioridade!: number | null;
+  prioridade!: CidadaoPrioridade | null;
 
   @Column({
+    name: 'dataNascimento',
     type: 'date',
     nullable: true,
-    comment: 'Data de nascimento é opcional. Mas sua ausência não dará a prerrogativa da idade no caso de senha prioritária.'
+    comment: 'Data de nascimento do cidadão (necessária para prioridade por idade)'
   })
   dataNascimento!: Date | null;
 
   @Column({
+    name: 'ultimoAcesso',
     type: 'timestamp',
-    name: 'UltimoAcesso',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
+    comment: 'Data e hora do último acesso do cidadão'
   })
   ultimoAcesso!: Date | null;
 
   // Relação com Atendimento
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.cidadao)
+  @OneToMany(() => Atendimento, (atendimento: Atendimento) => atendimento.cidadao)
   atendimentos!: Atendimento[];
 
-  // Relação com LoginCidadao
-  @OneToMany(() => LoginCidadao, (login) => login.cidadao)
-  logins!: LoginCidadao[];
-
   // Relação com Dispositivo
-  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.cidadao)
+  @OneToMany(() => Dispositivo, (dispositivo: Dispositivo) => dispositivo.cidadao)
   dispositivos!: Dispositivo[];
 
-  // Relação com LoginCidadao (OneToOne)
-  @OneToOne(() => LoginCidadao, (login) => login.cidadao)
+  // Relação com LoginCidadao (OneToMany)
+  @OneToMany(() => LoginCidadao, (login: LoginCidadao) => login.cidadao)
+  logins!: LoginCidadao[];
+
+  // Relação com LoginCidadao ativo (OneToOne)
+  @OneToOne(() => LoginCidadao, (login: LoginCidadao) => login.cidadao)
   login!: LoginCidadao;
 }

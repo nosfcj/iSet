@@ -1,7 +1,7 @@
 /**
  * Guiche Entity
  * @file api/src/models/Guiche.ts
- * @lastModified 2025-03-18 19:04:59
+ * @lastModified 2025-03-18 20:24:12
  * @modifiedBy nosfcj
  * @description Entidade que representa os guichês de atendimento e sua disponibilidade
  */
@@ -31,7 +31,7 @@ export enum GuicheDisponibilidade {
 
 @Entity({ 
   name: 'Guiche',
-  comment: 'Contém informações dos guichês, usuários e disponibilidade para atendimentos'
+  comment: 'Contém informações dos guichês, seu status e disponibilidade para atendimentos no sistema'
 })
 export class Guiche {
   @PrimaryGeneratedColumn({ 
@@ -57,7 +57,7 @@ export class Guiche {
     width: 3,
     zerofill: true,
     nullable: false,
-    comment: 'Número do guichê no local de atendimento'
+    comment: 'Número sequencial do guichê no local de atendimento (001-999)'
   })
   identificacao!: number;
 
@@ -66,7 +66,7 @@ export class Guiche {
     type: 'int',
     default: GuicheDisponibilidade.FORA_ATENDIMENTO,
     nullable: false,
-    comment: 'Situação do guichê via WebSocket: 0-fora, 1-aguardando, 2-em atendimento, 3-suspenso',
+    comment: 'Disponibilidade via WebSocket: 0-fora, 1-aguardando, 2-em atendimento, 3-suspenso',
     enum: GuicheDisponibilidade
   })
   disponibilidade!: GuicheDisponibilidade;
@@ -83,17 +83,17 @@ export class Guiche {
     name: 'Usuario_ID',
     type: 'int',
     nullable: true,
-    comment: 'ID do usuário que está utilizando este guichê'
+    comment: 'ID do usuário que está utilizando este guichê (quando em uso)'
   })
   usuarioId!: number | null;
 
   // Relação com Local (obrigatória)
-  @ManyToOne(() => Local, (local: Local) => local.guiches)
+  @ManyToOne(() => Local, (local: Local) => local.guiches, { nullable: false })
   @JoinColumn({ name: 'Local_ID' })
   local!: Local;
 
   // Relação com Usuario (opcional)
-  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.guiches)
+  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.guiches, { nullable: true })
   @JoinColumn({ name: 'Usuario_ID' })
   usuario!: Usuario | null;
 

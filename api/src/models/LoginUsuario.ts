@@ -1,33 +1,45 @@
+/**
+ * LoginUsuario Entity
+ * @file api/src/models/LoginUsuario.ts
+ * @lastModified 2025-03-18 19:26:12
+ * @modifiedBy nosfcj
+ * @description Entidade que representa as credenciais de acesso dos usuários ao sistema
+ */
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Usuario } from './Usuario';
 
 @Entity({ 
   name: 'LoginUsuario',
-  comment: 'Essa tabela possui as informações de login no sistema.'
+  comment: 'Contém as credenciais de acesso dos usuários ao sistema'
 })
 export class LoginUsuario {
   @PrimaryColumn({ 
     name: 'Usuario_ID',
-    comment: 'Define a que usuário este login pertence.'
+    type: 'int',
+    comment: 'ID do usuário ao qual este login pertence (PK/FK)'
   })
   usuarioId!: number;
 
   @Column({
-    type: 'text',
+    name: 'usuario',
+    type: 'varchar',
+    length: 255,
     nullable: false,
-    comment: 'ID que define o nome de usuário do sistema.'
+    comment: 'Nome de usuário para login no sistema'
   })
   usuario!: string;
 
   @Column({
-    type: 'text',
+    name: 'senha',
+    type: 'varchar',
+    length: 255,
     nullable: false,
-    comment: 'Senha, codificada para privacidade'
+    comment: 'Hash da senha do usuário'
   })
   senha!: string;
 
-  // Relação OneToOne com Usuario
-  @OneToOne(() => Usuario, (usuario) => usuario.login)
+  // Relação OneToOne com Usuario (PK compartilhada)
+  @OneToOne(() => Usuario, (usuario: Usuario) => usuario.login)
   @JoinColumn({ name: 'Usuario_ID' })
-  usuarioRelacionado!: Usuario;
+  usuario_relacionado!: Usuario;
 }

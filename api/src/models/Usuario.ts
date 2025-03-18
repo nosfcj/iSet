@@ -1,3 +1,10 @@
+/**
+ * Usuario Entity
+ * @file api/src/models/Usuario.ts
+ * @lastModified 2025-03-18 19:24:41
+ * @modifiedBy nosfcj
+ * @description Entidade que representa os usuários do sistema responsáveis pela gestão e atendimento
+ */
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { Unidade } from './Unidade';
 import { Atendimento } from './Atendimento';
@@ -8,67 +15,103 @@ import { Dispositivo } from './Dispositivo';
 import { Monitor } from './Monitor';
 import { Acao } from './Acao';
 
+/**
+ * Enum para status do usuário
+ */
+export enum UsuarioStatus {
+  INATIVO = 0,
+  ATIVO = 1
+}
+
+/**
+ * Enum para nível de acesso do usuário
+ */
+export enum UsuarioNivel {
+  ATENDENTE = 1,
+  SUPERVISOR = 2,
+  EDITOR = 3,
+  GESTOR = 4,
+  ADMINISTRADOR = 5
+}
+
 @Entity({ 
   name: 'Usuario',
-  comment: 'Essa tabela é referente aos dados dos usuários que participam da gestão de informação e atendimento.'
+  comment: 'Contém informações dos usuários responsáveis pela gestão e atendimento no sistema'
 })
 export class Usuario {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @PrimaryGeneratedColumn({ 
+    name: 'ID',
+    type: 'int',
+    comment: 'Identificador único do usuário'
+  })
   id!: number;
 
   @Column({
+    name: 'status',
     type: 'tinyint',
-    default: 1,
+    default: UsuarioStatus.ATIVO,
     nullable: false,
-    comment: 'Define status: 0 - inativo, 1 - ativo\n'
+    comment: 'Status: 0-inativo, 1-ativo',
+    enum: UsuarioStatus
   })
-  status!: number;
+  status!: UsuarioStatus;
 
   @Column({
+    name: 'nivel',
     type: 'int',
     nullable: false,
-    comment: 'Define o nivel de acesso do usuário do sistema: 0 - administrador, 1 - atendente de serviços, 2 - editor de serviços na carta, 3 - supervisor de atendimento, 4 - gestor do sistema. Iniciando do atendente, a ordem crescente herda o nível do anterior. o Administrador é o único que herda todos e faz registro de usuários do sistema. Demais funções, vide documentação. '
+    comment: 'Nível: 1-atendente, 2-supervisor, 3-editor, 4-gestor, 5-administrador',
+    enum: UsuarioNivel
   })
-  nivel!: number;
+  nivel!: UsuarioNivel;
 
   @Column({
+    name: 'nome',
     type: 'varchar',
     length: 45,
     nullable: false,
-    comment: 'Nome real do usuário do sistema'
+    comment: 'Nome completo do usuário'
   })
   nome!: string;
 
-  // Relação com Unidade
-  @ManyToOne(() => Unidade, (unidade) => unidade.usuarios)
+  @Column({
+    name: 'Unidade_ID',
+    type: 'int',
+    nullable: true,
+    comment: 'ID da unidade à qual o usuário está vinculado'
+  })
+  unidadeId!: number | null;
+
+  // Relação com Unidade (opcional)
+  @ManyToOne(() => Unidade, (unidade: Unidade) => unidade.usuarios)
   @JoinColumn({ name: 'Unidade_ID' })
   unidade!: Unidade | null;
 
   // Relação com Atendimento
-  @OneToMany(() => Atendimento, (atendimento) => atendimento.usuario)
+  @OneToMany(() => Atendimento, (atendimento: Atendimento) => atendimento.usuario)
   atendimentos!: Atendimento[];
 
   // Relação com Guiche
-  @OneToMany(() => Guiche, (guiche) => guiche.usuario)
+  @OneToMany(() => Guiche, (guiche: Guiche) => guiche.usuario)
   guiches!: Guiche[];
 
   // Relação com Auditoria
-  @OneToMany(() => AuditoriaInterna, (AuditoriaInterna) => AuditoriaInterna.usuario)
-  AuditoriasInternas!: AuditoriaInterna[];
+  @OneToMany(() => AuditoriaInterna, (auditoria: AuditoriaInterna) => auditoria.usuario)
+  auditorias!: AuditoriaInterna[];
 
   // Relação com Dispositivo
-  @OneToMany(() => Dispositivo, (dispositivo) => dispositivo.usuario)
+  @OneToMany(() => Dispositivo, (dispositivo: Dispositivo) => dispositivo.usuario)
   dispositivos!: Dispositivo[];
 
   // Relação com Monitor
-  @OneToMany(() => Monitor, (monitor) => monitor.usuario)
+  @OneToMany(() => Monitor, (monitor: Monitor) => monitor.usuario)
   monitores!: Monitor[];
 
   // Relação com LoginUsuario
-  @OneToOne(() => LoginUsuario, (login) => login.usuario)
+  @OneToOne(() => LoginUsuario, (login: LoginUsuario) => login.usuario)
   login!: LoginUsuario;
 
   // Relação com Acao
-  @OneToMany(() => Acao, (acao) => acao.usuario)
+  @OneToMany(() => Acao, (acao: Acao) => acao.usuario)
   acoes!: Acao[];
 }
