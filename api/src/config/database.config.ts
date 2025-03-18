@@ -3,9 +3,11 @@ import { Acao } from "../models/Acao";
 import { Agregador } from "../models/Agregador";
 import { Atendimento } from "../models/Atendimento";
 import { AuditoriaInterna } from "../models/AuditoriaInterna";
+import { Avaliacao } from "../models/Avaliacao";
 import { Cidadao } from "../models/Cidadao";
 import { Cidade } from "../models/Cidade";
 import { Codigos } from "../models/Codigos";
+import { Configuracao } from "../models/Configuracao";
 import { Conteudo } from "../models/Conteudo";
 import { Direcionamento } from "../models/Direcionamento";
 import { Dispositivo } from "../models/Dispositivo";
@@ -35,9 +37,11 @@ export const AppDataSource = new DataSource({
         Agregador,
         Atendimento,
         AuditoriaInterna,
+        Avaliacao,
         Cidadao,
         Cidade,
         Codigos,
+        Configuracao,
         Conteudo,
         Direcionamento,
         Dispositivo,
@@ -70,6 +74,6 @@ export const testConnection = async () => {
 };
 
 /**
- * @lastModified 2025-03-18 00:27:49
+ * @lastModified 2025-03-18 00:38:19
  * @modifiedBy nosfcj
  */
