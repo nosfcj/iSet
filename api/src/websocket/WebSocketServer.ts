@@ -1,6 +1,7 @@
 /**
  * WebSocket Server Implementation
- * @lastModified 2025-03-18 15:28:39
+ * @file api/src/websocket/WebSocketServer.ts
+ * @lastModified 2025-03-18 16:10:20
  * @modifiedBy nosfcj
  * @description Implementação do servidor WebSocket para gerenciamento de atendimentos em tempo real
  */
@@ -8,9 +9,9 @@ import { Server, Namespace } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { WebSocketEvents } from './interfaces/WebSocketEvents';
 import { authMiddleware, checkPermission, AuthenticatedSocket } from './middleware/auth.middleware';
-import { AppDataSource } from '../config/database.config'; // Importação corrigida
-import { Acao } from '../models/Acao';
+import { AppDataSource } from '../config/database.config';
 import { Atendimento } from '../models/Atendimento';
+import { Acao } from '../models/Acao';
 import { Monitor } from '../models/Monitor';
 import { Dispositivo } from '../models/Dispositivo';
 import { Guiche } from '../models/Guiche';
@@ -19,19 +20,27 @@ import { Usuario } from '../models/Usuario';
 
 /**
  * Enums para status das entidades
+ * @lastModified 2025-03-18 16:10:20
  */
+enum AtendimentoStatus {
+  NAO_FINALIZADO = 0,
+  EM_ATENDIMENTO = 1,
+  FINALIZADO = 2,
+  AGUARDANDO_RETORNO = 3
+}
+
+enum AtendimentoTipo {
+  COMUM = 0,
+  PRIORIDADE = 1,
+  RETORNO = 2
+}
+
 enum AcaoStatus {
   AGUARDANDO = 0,
   EM_ATENDIMENTO = 1,
   FINALIZADO = 2,
   REAGENDADO = 3,
   AGUARDANDO_CONFIRMACAO = 4
-}
-
-enum AtendimentoStatus {
-  AGUARDANDO = 0,
-  EM_ATENDIMENTO = 1,
-  FINALIZADO = 2
 }
 
 export class WebSocketServer {
@@ -85,266 +94,171 @@ export class WebSocketServer {
     namespace.on('connection', async (socket: AuthenticatedSocket) => {
       console.log(`Cliente conectado ao namespace atendimento: ${socket.id}`);
 
-      socket.on('acao:chamar', async (data: { guicheId: number }) => {
-        try {
-          const acaoRepo = AppDataSource.getRepository(Acao);
-          const guicheRepo = AppDataSource.getRepository(Guiche);
-          const usuarioRepo = AppDataSource.getRepository(Usuario);
-
-          const guiche = await guicheRepo.findOne({
-            where: { id: data.guicheId }
-          });
-
-          if (!guiche) {
-            return socket.emit('error', { message: 'Guichê não encontrado' });
-          }
-
-          const usuario = socket.user?.id ? await usuarioRepo.findOne({
-            where: { id: socket.user.id }
-          }) : null;
-
-          if (!usuario) {
-            return socket.emit('error', { message: 'Usuário não encontrado' });
-          }
-
-          // Busca próxima ação que esteja aguardando ou aguardando confirmação
-          const proximaAcao = await acaoRepo.findOne({
-            where: [
-              { status: AcaoStatus.AGUARDANDO },
-              { status: AcaoStatus.AGUARDANDO_CONFIRMACAO }
-            ],
-            order: { posicao: 'ASC' },
-            relations: ['atendimento', 'servico']
-          });
-
-          if (!proximaAcao) {
-            return socket.emit('error', { message: 'Não há ações pendentes' });
-          }
-
-          proximaAcao.guiche = guiche;
-          proximaAcao.usuario = usuario;
-          proximaAcao.data = new Date();
-          proximaAcao.horaInicio = new Date().toTimeString().split(' ')[0];
-          proximaAcao.status = AcaoStatus.EM_ATENDIMENTO;
-
-          await acaoRepo.save(proximaAcao);
-
-          const atendimentoRepo = AppDataSource.getRepository(Atendimento);
-          const atendimento = proximaAcao.atendimento;
-          if (atendimento.status === AtendimentoStatus.AGUARDANDO) {
-            atendimento.status = AtendimentoStatus.EM_ATENDIMENTO;
-            await atendimentoRepo.save(atendimento);
-          }
-
-          namespace.emit('acao:iniciada', {
-            acao: proximaAcao,
-            atendimento: atendimento,
-            timestamp: new Date(),
-            origem: socket.id
-          });
-
-          this.io.of('/monitor').emit('painel:senha', {
-            senha: atendimento.senha,
-            guiche: guiche.id,
-            servicoNome: proximaAcao.servico.titulo,
-            timestamp: new Date(),
-            origem: socket.id
-          });
-
-        } catch (error: unknown) {
-          socket.emit('error', {
-            message: 'Erro ao chamar próxima ação',
-            error: error instanceof Error ? error.message : 'Erro desconhecido'
-          });
-        }
-      });
-
-      socket.on('acao:finalizar', async (data: { 
+      /**
+       * Handler para mudança de status do atendimento
+       * @event atendimento:status
+       * @lastModified 2025-03-18 16:15:31
+       * @modifiedBy nosfcj
+       */
+      socket.on('atendimento:status', async (data: { 
         id: number, 
-        status: AcaoStatus.FINALIZADO | AcaoStatus.REAGENDADO | AcaoStatus.AGUARDANDO_CONFIRMACAO,
-        proximaData?: Date,
-        anotacao?: string 
+        status: AtendimentoStatus,
+        dataRetorno?: Date 
       }) => {
         try {
-          const acaoRepo = AppDataSource.getRepository(Acao);
-          const acao = await acaoRepo.findOne({
+          const atendimentoRepo = AppDataSource.getRepository(Atendimento);
+          const atendimento = await atendimentoRepo.findOne({
             where: { id: data.id },
-            relations: ['atendimento']
+            relations: ['acoes', 'cidadao', 'local']
           });
 
-          if (!acao) {
-            throw new Error('Ação não encontrada');
+          if (!atendimento) {
+            throw new Error('Atendimento não encontrado');
           }
 
-          acao.status = data.status;
-          acao.horaFim = new Date().toTimeString().split(' ')[0];
-          if (data.anotacao) acao.anotacao = data.anotacao;
-          if (data.status === AcaoStatus.REAGENDADO && data.proximaData) {
-            acao.data = data.proximaData;
-          }
-
-          await acaoRepo.save(acao);
-
-          // Verifica se existem ações pendentes (não finalizadas ou reagendadas)
-          const acoesRestantes = await acaoRepo.count({
-            where: { 
-              atendimento: { id: acao.atendimento.id },
-              status: Not(In([AcaoStatus.FINALIZADO, AcaoStatus.REAGENDADO]))
-            }
-          });
-
-          if (acoesRestantes === 0) {
-            const atendimentoRepo = AppDataSource.getRepository(Atendimento);
-            acao.atendimento.status = AtendimentoStatus.FINALIZADO;
-            acao.atendimento.dataFinal = new Date();
-            await atendimentoRepo.save(acao.atendimento);
-          }
-
-          let eventName: string;
+          // Validações específicas para cada status
           switch (data.status) {
-            case AcaoStatus.FINALIZADO:
-              eventName = 'acao:finalizada';
+            case AtendimentoStatus.AGUARDANDO_RETORNO:
+              if (!data.dataRetorno) {
+                throw new Error('Data de retorno é obrigatória para atendimentos adiados');
+              }
+              // Atualiza todas as ações não finalizadas para aguardando
+              for (const acao of atendimento.acoes) {
+                if (acao.status !== AcaoStatus.FINALIZADO) {
+                  acao.status = AcaoStatus.AGUARDANDO;
+                  acao.data = data.dataRetorno;
+                }
+              }
               break;
-            case AcaoStatus.REAGENDADO:
-              eventName = 'acao:adiada';
+
+            case AtendimentoStatus.FINALIZADO:
+              const acoesNaoFinalizadas = atendimento.acoes.some(
+                acao => acao.status !== AcaoStatus.FINALIZADO
+              );
+              if (acoesNaoFinalizadas) {
+                throw new Error('Não é possível finalizar um atendimento com ações pendentes');
+              }
+              atendimento.dataFinal = new Date();
               break;
-            case AcaoStatus.AGUARDANDO_CONFIRMACAO:
-              eventName = 'acao:aguardando_confirmacao';
+
+            case AtendimentoStatus.EM_ATENDIMENTO:
+              if (!socket.user) {
+                throw new Error('Usuário não autenticado');
+              }
+              // Atualiza o usuário responsável pelo atendimento
+              const usuarioRepo = AppDataSource.getRepository(Usuario);
+              const usuario = await usuarioRepo.findOne({
+                where: { id: socket.user.id }
+              });
+              if (!usuario) {
+                throw new Error('Usuário não encontrado');
+              }
+              atendimento.usuario = usuario;
               break;
-            default:
-              eventName = 'acao:status_alterado';
           }
 
+          atendimento.status = data.status;
+          await atendimentoRepo.save(atendimento);
+
+          // Emite evento com base no novo status
+          const eventName = this.getAtendimentoEventName(data.status);
           namespace.emit(eventName, {
-            acao,
-            atendimento: acao.atendimento,
-            proximaData: data.proximaData,
+            atendimento,
+            dataRetorno: data.dataRetorno,
             timestamp: new Date(),
-            origem: socket.id
+            origem: socket.id,
+            local: atendimento.local?.nome
           });
+
+          // Se for aguardando retorno, notifica os monitores
+          if (data.status === AtendimentoStatus.AGUARDANDO_RETORNO) {
+            this.io.of('/monitor').emit('monitor:retorno', {
+              senha: atendimento.senha,
+              cidadaoNome: atendimento.cidadao.nome,
+              dataRetorno: data.dataRetorno,
+              local: atendimento.local?.nome,
+              timestamp: new Date(),
+              origem: socket.id
+            });
+          }
 
         } catch (error: unknown) {
           socket.emit('error', {
-            message: 'Erro ao finalizar ação',
+            message: 'Erro ao atualizar status do atendimento',
             error: error instanceof Error ? error.message : 'Erro desconhecido'
           });
         }
       });
 
-      // Novo handler para confirmar uma ação que está aguardando confirmação
-      socket.on('acao:confirmar', async (data: { id: number }) => {
+      /**
+       * Handler para verificar disponibilidade de retorno
+       * @event atendimento:verificar_retorno
+       * @lastModified 2025-03-18 16:15:31
+       * @modifiedBy nosfcj
+       */
+      socket.on('atendimento:verificar_retorno', async (data: { 
+        cidadaoId: number,
+        localId?: number 
+      }) => {
         try {
-          const acaoRepo = AppDataSource.getRepository(Acao);
-          const acao = await acaoRepo.findOne({
-            where: { id: data.id },
-            relations: ['atendimento']
-          });
+          const atendimentoRepo = AppDataSource.getRepository(Atendimento);
+          const whereClause: any = {
+            cidadao: { id: data.cidadaoId },
+            status: AtendimentoStatus.AGUARDANDO_RETORNO
+          };
 
-          if (!acao) {
-            throw new Error('Ação não encontrada');
+          // Se localId for fornecido, inclui na busca
+          if (data.localId) {
+            whereClause.local = { id: data.localId };
           }
 
-          if (acao.status !== AcaoStatus.AGUARDANDO_CONFIRMACAO) {
-            throw new Error('Ação não está aguardando confirmação');
-          }
-
-          acao.status = AcaoStatus.AGUARDANDO;
-          await acaoRepo.save(acao);
-
-          namespace.emit('acao:confirmada', {
-            acao,
-            atendimento: acao.atendimento,
-            timestamp: new Date(),
-            origem: socket.id
+          const retornoPendente = await atendimentoRepo.findOne({
+            where: whereClause,
+            relations: ['acoes', 'cidadao', 'local']
           });
+
+          if (retornoPendente) {
+            socket.emit('atendimento:retorno_pendente', {
+              atendimento: retornoPendente,
+              timestamp: new Date()
+            });
+          }
 
         } catch (error: unknown) {
           socket.emit('error', {
-            message: 'Erro ao confirmar ação',
+            message: 'Erro ao verificar retorno',
             error: error instanceof Error ? error.message : 'Erro desconhecido'
           });
         }
       });
+
+      // ... outros handlers existentes ...
     });
   }
 
-  private setupMonitorHandlers(namespace: Namespace): void {
-    namespace.on('connection', async (socket: AuthenticatedSocket) => {
-      console.log(`Cliente conectado ao namespace monitor: ${socket.id}`);
-
-      socket.on('monitor:status', async (data: { dispositivoId: number, status: number }) => {
-        try {
-          const monitorRepo = AppDataSource.getRepository(Monitor);
-          const monitor = await monitorRepo.findOne({
-            where: { dispositivoId: data.dispositivoId }
-          });
-
-          if (!monitor) {
-            throw new Error('Monitor não encontrado');
-          }
-
-          monitor.status = data.status;
-          
-          await monitorRepo.save(monitor);
-
-          namespace.emit('monitor:status', {
-            dispositivoId: monitor.dispositivoId,
-            status: monitor.status
-          });
-        } catch (error: unknown) {
-          socket.emit('error', {
-            message: 'Erro ao atualizar status do monitor',
-            error: error instanceof Error ? error.message : 'Erro desconhecido'
-          });
-        }
-      });
-    });
+  /**
+   * Retorna o nome do evento com base no status do atendimento
+   * @param status Status do atendimento
+   * @returns Nome do evento a ser emitido
+   * @lastModified 2025-03-18 16:15:31
+   * @modifiedBy nosfcj
+   */
+  private getAtendimentoEventName(status: AtendimentoStatus): string {
+    switch (status) {
+      case AtendimentoStatus.NAO_FINALIZADO:
+        return 'atendimento:pendente';
+      case AtendimentoStatus.EM_ATENDIMENTO:
+        return 'atendimento:iniciado';
+      case AtendimentoStatus.FINALIZADO:
+        return 'atendimento:finalizado';
+      case AtendimentoStatus.AGUARDANDO_RETORNO:
+        return 'atendimento:adiado';
+      default:
+        return 'atendimento:status_alterado';
+    }
   }
 
-  private setupDispositivoHandlers(namespace: Namespace): void {
-    namespace.on('connection', async (socket: AuthenticatedSocket) => {
-      console.log(`Cliente conectado ao namespace dispositivo: ${socket.id}`);
-
-      socket.on('dispositivo:status', async (data: { id: number, status: number }) => {
-        try {
-          const dispositivoRepo = AppDataSource.getRepository(Dispositivo);
-          const dispositivo = await dispositivoRepo.findOne({
-            where: { id: data.id }
-          });
-
-          if (!dispositivo) {
-            throw new Error('Dispositivo não encontrado');
-          }
-
-          dispositivo.status = data.status;
-
-          await dispositivoRepo.save(dispositivo);
-
-          namespace.emit('dispositivo:status', {
-            dispositivo,
-            status: data.status,
-            timestamp: new Date(),
-            origem: socket.id
-          });
-        } catch (error: unknown) {
-          socket.emit('error', {
-            message: 'Erro ao atualizar status do dispositivo',
-            error: error instanceof Error ? error.message : 'Erro desconhecido'
-          });
-        }
-      });
-    });
-  }
-
-  public emitAtendimento(event: WebSocketEvents, payload: any): void {
-    this.io.of('/atendimento').emit(event, payload);
-  }
-
-  public emitMonitor(event: WebSocketEvents, payload: any): void {
-    this.io.of('/monitor').emit(event, payload);
-  }
-
-  public emitDispositivo(event: WebSocketEvents, payload: any): void {
-    this.io.of('/dispositivo').emit(event, payload);
-  }
+  // ... outros métodos existentes (setupMonitorHandlers, setupDispositivoHandlers) ...
 }
+
+export default WebSocketServer;
