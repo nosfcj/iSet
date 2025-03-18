@@ -1,6 +1,17 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Atendimento } from './Atendimento';
 
+/**
+ * Enum para estrelas da avaliação
+ */
+export enum AvaliacaoEstrelas {
+  PESSIMO = 1,
+  RUIM = 2,
+  RAZOAVEL = 3,
+  OTIMO = 4,
+  PERFEITO = 5
+}
+
 @Entity({ 
   name: 'Avaliacao',
   comment: 'Essa tabela contém informações sobre a avaliação que o cidadão faz ao atendimento oferecido.'

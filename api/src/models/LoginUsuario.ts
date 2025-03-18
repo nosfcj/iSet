@@ -8,6 +8,7 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Usuario } from './Usuario';
 
+
 @Entity({ 
   name: 'LoginUsuario',
   comment: 'Contém as credenciais de acesso dos usuários ao sistema'
