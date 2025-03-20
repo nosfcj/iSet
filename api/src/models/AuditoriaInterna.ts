@@ -1,7 +1,7 @@
 /**
  * AuditoriaInterna Entity
  * @file api/src/models/AuditoriaInterna.ts
- * @lastModified 2025-03-18 20:46:31
+ * @lastModified 2025-03-20 11:56:20
  * @modifiedBy nosfcj
  * @description Entidade que registra logs de auditoria do sistema incluindo erros, mudanças significativas e atividades incomuns
  */
@@ -55,21 +55,12 @@ export class AuditoriaInterna {
   usuarioId!: number | null;
 
   // Relação ManyToOne com Usuario (opcional)
-  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.AuditoriasInternas, { nullable: true })
+  @ManyToOne(() => Usuario, (usuario: Usuario) => usuario.auditorias, { nullable: true })
   @JoinColumn({ name: 'Usuario_ID' })
   usuario!: Usuario | null;
 
-  @Column({
-    name: 'Codigos_ID',
-    type: 'varchar',
-    length: 15,
-    nullable: false,
-    comment: 'ID do código que classifica o evento'
-  })
-  codigosId!: string;
-
   // Relação ManyToOne com Codigos (obrigatória)
-  @ManyToOne(() => Codigos, (codigo: Codigos) => codigo.auditorias, { nullable: false })
+  @ManyToOne(() => Codigos, { nullable: false })
   @JoinColumn({ name: 'Codigos' })
   codigosRelacionado!: Codigos;
 }
