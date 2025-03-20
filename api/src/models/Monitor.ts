@@ -1,7 +1,7 @@
 /**
  * Monitor Entity
  * @file api/src/models/Monitor.ts
- * @lastModified 2025-03-18 19:15:52
+ * @lastModified 2025-03-20 16:43:15
  * @modifiedBy nosfcj
  * @description Entidade que representa os monitores chamadores de senha
  */
@@ -34,9 +34,8 @@ export class Monitor {
     name: 'status',
     type: 'tinyint',
     nullable: false,
-    default: MonitorStatus.ATIVO,
-    comment: 'Status do Monitor: 0-inativo, 1-ativo',
-    enum: MonitorStatus
+    default: 1,
+    comment: 'Status do Monitor: 0-inativo, 1-ativo'
   })
   status!: MonitorStatus;
 

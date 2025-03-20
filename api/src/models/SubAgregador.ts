@@ -31,14 +31,12 @@ export class SubAgregador {
   id!: number;
 
   @Column({
-    name: 'status',
     type: 'tinyint',
-    default: SubAgregadorStatus.ATIVADO,
-    nullable: false,
+    name: 'status',
     comment: 'Status: 0-desativado, 1-ativado. A desativação afeta todos os serviços vinculados',
-    enum: SubAgregadorStatus
+    default: 1
   })
-  status!: SubAgregadorStatus;
+  status!: number;
 
   @Column({
     name: 'nome',
