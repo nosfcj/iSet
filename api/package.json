@@ -1,46 +1,46 @@
 {
   "name": "api",
   "version": "1.0.0",
+  "description": "API do sistema iSet",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:show": "npm run typeorm migration:show -- -d src/config/database.config.ts",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/database.config.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d src/config/database.config.ts"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
+    "argon2": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-async-errors": "latest",
+    "glob": "^9.0.0",
+    "jsonwebtoken": "latest",
+    "lru-cache": "^10.0.1",
     "mariadb": "^3.4.0",
-    "mysql": "^2.18.1",
-    "mysql2": "^3.12.0",
-    "reflect-metadata": "^0.2.2",
-    "socket.io": "^4.8.1",
-    "winston": "^3.17.0"
+    "moment": "latest",
+    "pg": "latest",
+    "reflect-metadata": "latest",
+    "socket.io": "latest",
+    "typeorm": "latest",
+    "typescript": "latest",
+    "uuid": "latest",
+    "winston": "latest"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.13.9",
-    "@types/socket.io": "^3.0.1",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "typeorm": "^0.3.21",
-    "typescript": "^5.8.2"
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/jest": "latest",
+    "@types/jsonwebtoken": "latest",
+    "@types/node": "^22.13.11",
+    "@types/uuid": "latest",
+    "jest": "latest",
+    "nodemon": "latest",
+    "ts-jest": "latest",
+    "ts-node": "latest"
   },
-  "description": ""
+  "resolutions": {
+    "inflight": "lru-cache@^10.0.1"
+  }
 }

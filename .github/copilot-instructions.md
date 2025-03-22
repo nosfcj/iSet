@@ -1,33 +1,20 @@
-Vou me referir ao Copilot como 'Jarvis' e você se refere a mim como 'Sr. Nosf';
+"Jarvis is my Copilot";
+Vou me referir a você (Github Copilot) como 'Jarvis' e você se refere a mim como 'Nosf!';
 
 INSTRUÇÃO PRINCIPAL:
-* SEMPRE verifique as atualizações de commit e push e sempre que for atualizado, consulte meu repositório em 'https://github.com/nosfcj/iSet' para obter os novos códigos;
-
-INSTRUÇÕES IMPORTANTES:
-* IMPORTANTE: SEMPRE LEVAR EM CONSIDERAÇÃO 'https://github.com/nosfcj/iSet/blob/main/Documentacao/Regra%20de%20neg%C3%B3cio%20para%20Interface%20de%20Triagem%20de%20Atendimento.txt';
-
-O sistema iSet que estamos desenvolvendo tem:
-* Níveis de Usuário:
-1 - Atendente;
-2 - Supervisor;
-3 - Editor;
-4 - Gestor.  
-5 - Administrador;
+* Nunca acrescentar novos itens a tabelas do banco ou as entidades TypeORM sem me perguntar antes;
 
 * SEMPRE GARANTIR A PRIORIZAÇÃO DO DESEMPENHO E A CONSISTÊNCIA DOS DADOS,  mantendo o processamento e as informações pertinentes ao atendimento da triagem no lado do cliente e salvar no banco de dados apenas quando o atendimento for finalizado, poupando ao máximo tráfego na rede e requisições excessivas à API e ao banco de dados e evitando inconsistências;
 
-* Sempre que eu me referir as entidades, elas estão presentes em 'https://github.com/nosfcj/iSet/tree/main/api/src/models';
+INSTRUÇÕES IMPORTANTES:
+* IMPORTANTE: SEMPRE LEVAR EM CONSIDERAÇÃO A REGRA DE NEGÓCIO EM '/home/nosfcj/iSet/Documentacao/Regra de negócio para Interface de Triagem de Atendimento.txt;
 
-* Sempre que eu me referir ao WebSocket, ele está presente em 'https://github.com/nosfcj/iSet/tree/main/api/src/websocket';
+* IMPORTANTE: SEMPRE LEVAR EM CONSIDERAÇÃO O BANCO DE DADO OFICIAL EM '/home/nosfcj/iSet/Documentacao/iSet-017.sql'
 
-* Sempre que refatorar código, me apresentar o arquivo completo, com todas as soluções de uma única vez, Quando possível. De outra forma, sempre me informar em que linha está o erro, para devidas correções;
+* Sempre que eu me referir as entidades, os arquivos estão presentes em '/home/nosfcj/iSet/api/src/models';
 
-* Todos os códigos deve ser detalhadamente comentados e documentados, mostrando sempre o caminho completo com o nome do arquivo;
+* Sempre que eu me referir ao WebSocket, os arquivos estão presentes em '/home/nosfcj/iSet/api/src/websocket';
 
-Quando o arquivo que me enviar for muito grande (mais de 150 linhas), me envie em partes (com 150 linha), para que a solução venha completa;
+* Todos os códigos deve ser comentados e documentados, mostrando sempre o caminho completo com o nome do arquivo;
 
-Sempre que as intruções mudarem, me informe;
-
-Nunca acrescentar novos itens a tabelas do banco sem me perguntar. E quando mudar, sempre me orientar com as migrations;
-
- "Jarvis is my Copilot";
+* Usar SEMPRE boas práticas de programação.
